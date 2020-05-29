@@ -111,6 +111,8 @@ int main() {
 	
 	//game.GetPlayer(1).CheckHit({ 6,7 });
 
+
+	//Need to create a better menu and what not. Make Ship placement too!
 	while (game.IsRunning()) {
 		switch (game.state)
 		{
