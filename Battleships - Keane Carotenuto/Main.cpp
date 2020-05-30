@@ -128,7 +128,14 @@ int main() {
 				Print({ game.GetPlayer(0).GetCursor().x * 3 + game.GetPlayer(0).GetBoardPos().x, game.GetPlayer(0).GetCursor().y * 3 - 1 + game.GetPlayer(0).GetBoardPos().y }, theHit ? L"HIT " : L"MISS", theHit ? 47 : 79);
 				
 				if (theHit) {
-					game.RemovePlayer(0);
+					game.GetPlayer(0).RemoveShip(0);
+
+					game.GetPlayer(0).AddShip({ {2,3},5,0,L"C",240 });
+
+					game.UpdateBoards();
+
+					DrawBoard(game.GetPlayer(0));
+
 					Sleep(1000);
 					game.state = 1;
 				}
@@ -141,10 +148,112 @@ int main() {
 			
 			break;
 
-		case 1:
-			if (!created) BasicStuff(game); created = true;
-			game.state = 2;
+		case 1: {
+			vector<CShip> toPlace{
+				{ {0,0},5,0,L"C",240 },
+				{ {0,0},4,0,L"B",224 },
+				{ {0,0},3,0,L"D",192 },
+				{ {0,0},3,0,L"S",144 },
+				{ {0,0},2,0,L"P",176 },
+			};
+			int _index = 0;
+
+
+			for (CShip _ship : toPlace) {
+				CPosition _startPos = game.GetPlayer(0).GetCursor();
+				int _direction = 0;
+				int _placed = false;
+				int _colour = 31;
+				bool _update = true;
+				bool _canPlace = false;
+
+				while (!_placed)
+				{
+					if (GetKeyState(VK_LEFT) & 0x8000) { game.GetPlayer(0).MoveCursorRight(-1); DrawBoard(game.GetPlayer(0)); _update = true; };
+					if (GetKeyState(VK_RIGHT) & 0x8000) { game.GetPlayer(0).MoveCursorRight(1); DrawBoard(game.GetPlayer(0)); _update = true; };
+					if (GetKeyState(VK_UP) & 0x8000) { game.GetPlayer(0).MoveCursorDown(-1); DrawBoard(game.GetPlayer(0)); _update = true; };
+					if (GetKeyState(VK_DOWN) & 0x8000) { game.GetPlayer(0).MoveCursorDown(1); DrawBoard(game.GetPlayer(0)); _update = true; };
+					if (GetKeyState('R') & 0x8000) {
+						_direction = abs(_direction - 1);
+						_update = true;
+					}
+					if (GetKeyState(VK_SPACE) & 0x8000) {
+						_placed = true;
+					}
+					else {
+						
+
+						if (_update) {
+							_update = false;
+							_startPos.x = game.GetPlayer(0).GetCursor().x;
+							_startPos.y = game.GetPlayer(0).GetCursor().y;
+
+							DrawBoard(game.GetPlayer(0));
+
+							//DrawCursor(game.GetPlayer(0), 2);
+
+							for (int i = 0; i < toPlace[_index].GetSegments().size(); i++) {
+								if ((_startPos.x + toPlace[_index].GetSegments().size()-1 > 9 && _direction == 0) || (_startPos.y + toPlace[_index].GetSegments().size()-1 > 9 && _direction == 1)) { //Add a check hit here for the player ships. You will need to add the ships to a new player (1) and check that, then once all are palced remove player 1 as a player!
+									_colour = 28; 
+									_canPlace = false;
+								}
+								else _colour = 31; _canPlace = true;
+
+								if (_direction == 0) {
+									if ((_startPos.x + i) > 9)  continue;
+									Print({ game.GetPlayer(0).GetBoardPos().x + (_startPos.x + i) * 3, game.GetPlayer(0).GetBoardPos().y + (_startPos.y * 3) }, L"╭─╮", _colour);
+									Print({ game.GetPlayer(0).GetBoardPos().x + (_startPos.x + i) * 3, game.GetPlayer(0).GetBoardPos().y + (_startPos.y * 3) + 2 }, L"╰─╯", _colour);
+								}
+								if (_direction == 1) {
+									if ((_startPos.y + i) > 9)  continue;
+									Print({ game.GetPlayer(0).GetBoardPos().x + _startPos.x * 3, game.GetPlayer(0).GetBoardPos().y + (_startPos.y + i) * 3 }, L"╭─╮", _colour);
+									Print({ game.GetPlayer(0).GetBoardPos().x + _startPos.x * 3, game.GetPlayer(0).GetBoardPos().y + (_startPos.y + i) * 3 + 2 }, L"╰─╯", _colour);
+								}
+							}
+						}
+						
+
+						Sleep(100);
+					}
+
+				}
+				_index++;
+			}
+
+
+			/*if (GetKeyState(VK_LEFT) & 0x8000) { game.GetPlayer(0).MoveCursorRight(-1); DrawBoard(game.GetPlayer(0)); };
+			if (GetKeyState(VK_RIGHT) & 0x8000) { game.GetPlayer(0).MoveCursorRight(1); DrawBoard(game.GetPlayer(0)); };
+			if (GetKeyState(VK_UP) & 0x8000) { game.GetPlayer(0).MoveCursorDown(-1); DrawBoard(game.GetPlayer(0)); };
+			if (GetKeyState(VK_DOWN) & 0x8000) { game.GetPlayer(0).MoveCursorDown(1); DrawBoard(game.GetPlayer(0)); };
+			if (GetKeyState('R') & 0x8000) {
+				game.GetPlayer(0).GetShip(0).SetDirection(abs(game.GetPlayer(0).GetShip(0).GetDirection() - 1));
+
+				Print({40,40}, to_wstring(game.GetPlayer(0).GetShip(0).GetDirection()), 15);
+
+
+			}
+			if (GetKeyState(VK_SPACE) & 0x8000) {
+
+			}
+			else {
+				game.GetPlayer(0).GetShip(0).SetStartPos(game.GetPlayer(0).GetCursor());
+				game.GetPlayer(0).GetShip(0).Rebuild();
+				game.GetPlayer(0).ResetBoard();
+				game.UpdateBoards();
+
+				DrawBoard(game.GetPlayer(0));
+
+				DrawCursor(game.GetPlayer(0), 2);
+
+				Sleep(100);
+			}*/
+
+
+
+			//if (!created) BasicStuff(game); created = true;
+			//game.state = 2;
 			break;
+		}
 
 		case 2:
 			if (GetKeyState(VK_CONTROL) & 0x8000 && GetKeyState('D') & 0x8000) { game.ToggleDebug(); game.GetPlayer(1).ResetBoard(); game.UpdateBoards(); DrawBoard(game.GetPlayer(1)); };

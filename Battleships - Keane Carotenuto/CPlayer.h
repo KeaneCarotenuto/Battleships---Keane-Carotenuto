@@ -34,6 +34,7 @@ public:
 	vector<CShip> &GetShips();
 	void AddShip(CShip _newShip);
 	CShip &GetShip(int _index);
+	void RemoveShip(int _index);
 
 	void AddShot(CPosition _pos);
 	vector<CPosition> GetShots();

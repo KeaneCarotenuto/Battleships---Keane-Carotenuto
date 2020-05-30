@@ -64,7 +64,7 @@ void CGame::UpdateBoards()
 	for (CPlayer& _player : GetPlayers()) {
 		for (CShip _ship : _player.GetShips()) {
 			for (CSegment _segment : _ship.GetSegments()) {
-				if (_segment.GetHitState() == 0 && _player.checkSame(m_players[m_players.size()-1]) && !GetDebug() && state != 0) continue;
+				if (_segment.GetHitState() == 0 && _player.checkSame(m_players[m_players.size()-1]) && !GetDebug() && state == 2) continue;
 				_player.m_board[_segment.GetPosition().y][_segment.GetPosition().x] = _segment;
 			}
 		}

@@ -5,7 +5,7 @@
 
 using namespace std;
 
-CShip::CShip(CPosition _startPos, int _length, int _iDirection, wstring _icon, int _colour): m_iDirection(_iDirection), m_icon(_icon), m_colour(_colour)
+CShip::CShip(CPosition _startPos, int _length, int _iDirection, wstring _icon, int _colour): m_iDirection(_iDirection), m_startPos(_startPos), m_icon(_icon), m_colour(_colour)
 {
 	for (int i = 0; i < _length; i++) {
 		if (m_iDirection == 0) {
@@ -33,6 +33,11 @@ int CShip::GetDirection() {
 	return m_iDirection;
 }
 
+void CShip::SetStartPos(CPosition _pos)
+{
+	m_startPos = _pos;
+}
+
 void CShip::SetSegments(vector<CSegment> _newSegment) {
 	m_segments = _newSegment;
 }
@@ -48,6 +53,19 @@ vector<CSegment> &CShip::GetSegments() {
 CSegment &CShip::GetSegment(int _index)
 {
 	return m_segments[_index];
+}
+
+void CShip::Rebuild()
+{
+	for (int i = 0; i < m_segments.size(); i++) {
+		if (m_iDirection == 0) {
+			AddSegment({ {m_startPos.x + i, m_startPos.y}, m_icon, m_colour });
+		}
+		if (m_iDirection == 1) {
+			AddSegment({ {m_startPos.x, m_startPos.y + i}, m_icon, m_colour });
+		}
+		m_segments.erase(m_segments.begin());
+	}
 }
 
 void CShip::PlaceShip(CPosition _newPos, int _iDir) {

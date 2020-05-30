@@ -64,6 +64,11 @@ CShip &CPlayer::GetShip(int _index)
 	return m_ships[_index];
 }
 
+void CPlayer::RemoveShip(int _index)
+{
+	m_ships.erase(m_ships.begin() + _index);
+}
+
 void CPlayer::AddShot(CPosition _pos)
 {
 	m_shots.push_back(_pos);
