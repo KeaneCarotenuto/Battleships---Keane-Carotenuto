@@ -34,6 +34,11 @@ void CGame::SwapPlayerTurn()
 	else m_pTurn = 0;
 }
 
+void CGame::SetPlayerTurn(int _player)
+{
+	m_pTurn = _player;
+}
+
 int CGame::GetPlayerTurn()
 {
 	return m_pTurn;
@@ -64,7 +69,7 @@ void CGame::UpdateBoards()
 	for (CPlayer& _player : GetPlayers()) {
 		for (CShip _ship : _player.GetShips()) {
 			for (CSegment _segment : _ship.GetSegments()) {
-				if (_segment.GetHitState() == 0 && _player.checkSame(m_players[m_players.size()-1]) && !GetDebug() && state == 2) continue;
+				if (_segment.GetHitState() == 0 && _player.checkSame(m_players[m_players.size()-1]) && !GetDebug()) continue;
 				_player.m_board[_segment.GetPosition().y][_segment.GetPosition().x] = _segment;
 			}
 		}

@@ -22,6 +22,7 @@ Mail : Keane.Car8958@mediadesign.school.nz
 #include <io.h>
 #include <fcntl.h>
 #include <algorithm>
+#include <conio.h>
 
 #include"CGame.h"
 #include"CPosition.h"
@@ -63,11 +64,146 @@ void BasicStuff(CGame &game) {
 	DrawBoard(game.GetPlayer(1));
 }
 
+void SlowPrint(CPosition _pos, wstring _message, int effect = 15, int _wait = 20) {
+	GotoXY(_pos);
+	for (wchar_t _char : _message) {
+		Sleep(_wait);
+		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), effect);
+		wcout << _char;
+		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15);
+	}
+}
+
+bool CheckTempShip(CGame &game, CPosition &_startPos, CShip &_ship, int &_direction, int _player) {
+	if ((_startPos.x + _ship.GetSegments().size() - 1 > 9 && _direction == 0) || (_startPos.y + _ship.GetSegments().size() - 1 > 9 && _direction == 1)) return false;
+	for (int i = 0; i < _ship.GetSegments().size(); i++) {
+
+		CPosition _tempPos;
+		if (_direction == 0) {
+			_tempPos = { _startPos.x + i, _startPos.y };
+		}
+		else {
+			_tempPos = { _startPos.x, _startPos.y + i };
+		}
+		if (game.GetPlayer(_player).CheckHit(_tempPos)) return false;
+
+	}
+	return true;
+}
+
+void ManualPlace(CGame &game, vector<CShip> &toPlace) {
+	for (CShip _ship : toPlace) {
+		CPosition _startPos = game.GetPlayer(0).GetCursor();
+		int _direction = 0;
+		int _placed = false;
+		int _colour = 31;
+		bool _update = true;
+		bool _canPlace = true;
+
+		//add some controls on the side, as well as display the ship Infortmation
+
+		while (!_placed)
+		{
+			if (GetKeyState(VK_LEFT) & 0x8000) { game.GetPlayer(0).MoveCursorRight(-1); DrawBoard(game.GetPlayer(0)); _update = true; };
+			if (GetKeyState(VK_RIGHT) & 0x8000) { game.GetPlayer(0).MoveCursorRight(1); DrawBoard(game.GetPlayer(0)); _update = true; };
+			if (GetKeyState(VK_UP) & 0x8000) { game.GetPlayer(0).MoveCursorDown(-1); DrawBoard(game.GetPlayer(0)); _update = true; };
+			if (GetKeyState(VK_DOWN) & 0x8000) { game.GetPlayer(0).MoveCursorDown(1); DrawBoard(game.GetPlayer(0)); _update = true; };
+			if (GetKeyState('R') & 0x8000) {
+				_direction = abs(_direction - 1);
+				_update = true;
+			}
+			_canPlace = false;
+
+			if (_update) {
+				_startPos.x = game.GetPlayer(0).GetCursor().x;
+				_startPos.y = game.GetPlayer(0).GetCursor().y;
+			}
+
+			if (CheckTempShip(game, _startPos, _ship, _direction, 0)) {
+				_colour = 26;
+				_canPlace = true;
+			}
+			else {
+				_colour = 28;
+			}
+
+			if (GetKeyState(VK_SPACE) & 0x8000 && _canPlace == true) {
+				_placed = true;
+				game.GetPlayer(0).AddShip({ _startPos,static_cast<int>(_ship.GetSegments().size()),_direction,_ship.GetIcon(),_ship.GetColour() });
+				game.UpdateBoards();
+
+				DrawBoard(game.GetPlayer(0));
+				continue;
+			}
+			else {
+				if (_update) {
+					_update = false;
+
+					DrawBoard(game.GetPlayer(0));
+
+					//DrawCursor(game.GetPlayer(0), 2);
+
+					for (int i = 0; i < _ship.GetSegments().size(); i++) {
+
+						if (_direction == 0) {
+							if ((_startPos.x + i) > 9)  continue;
+							Print({ game.GetPlayer(0).GetBoardPos().x + (_startPos.x + i) * 3, game.GetPlayer(0).GetBoardPos().y + (_startPos.y * 3) + 0 }, L"╭ ╮", _colour);
+							Print({ game.GetPlayer(0).GetBoardPos().x + (_startPos.x + i) * 3, game.GetPlayer(0).GetBoardPos().y + (_startPos.y * 3) + 2 }, L"╰ ╯", _colour);
+						}
+						if (_direction == 1) {
+							if ((_startPos.y + i) > 9)  continue;
+							Print({ game.GetPlayer(0).GetBoardPos().x + _startPos.x * 3, game.GetPlayer(0).GetBoardPos().y + (_startPos.y + i) * 3 + 0 }, L"╭ ╮", _colour);
+							Print({ game.GetPlayer(0).GetBoardPos().x + _startPos.x * 3, game.GetPlayer(0).GetBoardPos().y + (_startPos.y + i) * 3 + 2 }, L"╰ ╯", _colour);
+						}
+					}
+				}
+
+
+				Sleep(100);
+			}
+
+		}
+
+
+	}
+}
+
+void AutomaticPlace(CGame& game, vector<CShip>& toPlace, int _player) {
+	for (CShip _ship : toPlace) {
+		CPosition _startPos {0,0};
+		int _direction = 0;
+		int _placed = false;
+		bool _canPlace = false;
+
+		//add some controls on the side, as well as display the ship Infortmation
+
+		while (!_placed)
+		{
+			CPosition _startPos{ rand() % 10,rand() % 10 };
+			int _direction = rand() % 2;
+
+			if (CheckTempShip(game, _startPos, _ship, _direction, _player)) {
+				_canPlace = true;
+			}
+
+			if (_canPlace == true) {
+				_placed = true;
+				game.GetPlayer(_player).AddShip({ _startPos,static_cast<int>(_ship.GetSegments().size()),_direction,_ship.GetIcon(),_ship.GetColour() });
+				game.UpdateBoards();
+				continue;
+			}
+			
+
+		}
+
+
+	}
+}
 
 int main() {
 	//Enable the use of Unicode
 	(void)_setmode(_fileno(stdout), _O_U16TEXT);
-	Print({ 0,0 }, L"BOOTING", 12);
+	Print({ 0,0 }, L"BOOTING BATTLESHIP SYSTEM", 12);
 
 	//Maximise the screen
 	ShowWindow(GetConsoleWindow(), SW_MAXIMIZE);
@@ -88,17 +224,57 @@ int main() {
 	srand(static_cast <unsigned> (time(0)));
 
 	Sleep(1000);
-	Print({ 0,0 }, L"COMPLETE", 10);
+	SlowPrint({ 0,0 }, L"[COMPLETE] BATTLESHIP SYSTEM ONLINE", 10, 30);
+
+	SlowPrint({ 2,2 }, L"ENTER DEFENCE FORCE LOGIN", 12, 30);
+
+	SlowPrint({ 4,4 }, L"ENTER NAME: ");
+	wstring tempName;
+	getline(wcin, tempName);
+
+	SlowPrint({ 4,6 }, L"ENTER Password: ");
+
+	while (true) {
+		if (_kbhit()) {
+			wcout << L"*";
+			_getch();
+
+		}
+
+		if (GetKeyState(VK_RETURN) & 0x8000) break;
+		
+	}
+
+	Print({ 6,9 }, L"LOGGING IN", 15);
+	Print({4,11},      L"[                            ]", 15);
+	SlowPrint({ 5,11 }, L"============================", 10, 40);
+	Print({ 6,13 }, L"LOGGED IN", 10);
+
+	Sleep(1000);
+	
+	//wstring pass;
+	//getline(wcin, pass);
+
+	system("CLS");
+
+	Print({ 0,0 }, L"", 10);
 
 
 	SetFont();
 
 	CGame game;
-
-	bool created = false;
 	
 	game.AddPlayer({ L"MENU" });
-	game.GetPlayer(0).AddShip({ {2,3},5,0,L"PLAY",240 });
+	game.GetPlayer(0).AddShip({ {2,3},1,0,L"P",240 });
+	game.GetPlayer(0).AddShip({ {3,3},1,0,L"L",240 });
+	game.GetPlayer(0).AddShip({ {4,3},1,0,L"A",240 });
+	game.GetPlayer(0).AddShip({ {5,3},1,0,L"Y",240 });
+
+	game.GetPlayer(0).AddShip({ {2,9},1,0,L"Q",240 });
+	game.GetPlayer(0).AddShip({ {3,9},1,0,L"U",240 });
+	game.GetPlayer(0).AddShip({ {4,9},1,0,L"I",240 });
+	game.GetPlayer(0).AddShip({ {5,9},1,0,L"T",240 });
+
 
 	game.GetPlayer(0).CreateBoard();
 	game.GetPlayer(0).SetBoardPos({ 5,5 });
@@ -113,6 +289,8 @@ int main() {
 
 
 	//Need to create a better menu and what not. Make Ship placement too!
+	bool endAfter = false;
+
 	while (game.IsRunning()) {
 		switch (game.state)
 		{
@@ -127,16 +305,12 @@ int main() {
 				DrawBoard(game.GetPlayer(0));
 				Print({ game.GetPlayer(0).GetCursor().x * 3 + game.GetPlayer(0).GetBoardPos().x, game.GetPlayer(0).GetCursor().y * 3 - 1 + game.GetPlayer(0).GetBoardPos().y }, theHit ? L"HIT " : L"MISS", theHit ? 47 : 79);
 				
-				if (theHit) {
+				if (theHit && game.GetPlayer(0).GetCursor().y == 3) {
 					game.GetPlayer(0).RemoveShip(0);
 
-					game.GetPlayer(0).AddShip({ {2,3},5,0,L"C",240 });
+					game.RemovePlayer(0);
 
-					game.UpdateBoards();
-
-					DrawBoard(game.GetPlayer(0));
-
-					Sleep(1000);
+					Sleep(500);
 					game.state = 1;
 				}
 			}
@@ -156,114 +330,112 @@ int main() {
 				{ {0,0},3,0,L"S",144 },
 				{ {0,0},2,0,L"P",176 },
 			};
-			int _index = 0;
 
+			game.AddPlayer(tempName);
 
-			for (CShip _ship : toPlace) {
-				CPosition _startPos = game.GetPlayer(0).GetCursor();
-				int _direction = 0;
-				int _placed = false;
-				int _colour = 31;
-				bool _update = true;
-				bool _canPlace = false;
+			game.GetPlayer(0).CreateBoard();
+			game.GetPlayer(0).SetBoardPos({ 5,5 });
 
-				while (!_placed)
-				{
-					if (GetKeyState(VK_LEFT) & 0x8000) { game.GetPlayer(0).MoveCursorRight(-1); DrawBoard(game.GetPlayer(0)); _update = true; };
-					if (GetKeyState(VK_RIGHT) & 0x8000) { game.GetPlayer(0).MoveCursorRight(1); DrawBoard(game.GetPlayer(0)); _update = true; };
-					if (GetKeyState(VK_UP) & 0x8000) { game.GetPlayer(0).MoveCursorDown(-1); DrawBoard(game.GetPlayer(0)); _update = true; };
-					if (GetKeyState(VK_DOWN) & 0x8000) { game.GetPlayer(0).MoveCursorDown(1); DrawBoard(game.GetPlayer(0)); _update = true; };
-					if (GetKeyState('R') & 0x8000) {
-						_direction = abs(_direction - 1);
-						_update = true;
-					}
-					if (GetKeyState(VK_SPACE) & 0x8000) {
-						_placed = true;
-					}
-					else {
-						
+			game.AddPlayer({ L"CPU" });
 
-						if (_update) {
-							_update = false;
-							_startPos.x = game.GetPlayer(0).GetCursor().x;
-							_startPos.y = game.GetPlayer(0).GetCursor().y;
+			game.GetPlayer(1).CreateBoard();
+			game.GetPlayer(1).SetBoardPos({ 40,5 });
 
-							DrawBoard(game.GetPlayer(0));
+			AutomaticPlace(game, toPlace, 1);
 
-							//DrawCursor(game.GetPlayer(0), 2);
+			system("CLS");
 
-							for (int i = 0; i < toPlace[_index].GetSegments().size(); i++) {
-								if ((_startPos.x + toPlace[_index].GetSegments().size()-1 > 9 && _direction == 0) || (_startPos.y + toPlace[_index].GetSegments().size()-1 > 9 && _direction == 1)) { //Add a check hit here for the player ships. You will need to add the ships to a new player (1) and check that, then once all are palced remove player 1 as a player!
-									_colour = 28; 
-									_canPlace = false;
-								}
-								else _colour = 31; _canPlace = true;
+			SlowPrint({ 2,2 }, L"Select Ship Deployment Mode:", 15, 20);
+			
+			vector<int> colours { 10,15 };
 
-								if (_direction == 0) {
-									if ((_startPos.x + i) > 9)  continue;
-									Print({ game.GetPlayer(0).GetBoardPos().x + (_startPos.x + i) * 3, game.GetPlayer(0).GetBoardPos().y + (_startPos.y * 3) }, L"╭─╮", _colour);
-									Print({ game.GetPlayer(0).GetBoardPos().x + (_startPos.x + i) * 3, game.GetPlayer(0).GetBoardPos().y + (_startPos.y * 3) + 2 }, L"╰─╯", _colour);
-								}
-								if (_direction == 1) {
-									if ((_startPos.y + i) > 9)  continue;
-									Print({ game.GetPlayer(0).GetBoardPos().x + _startPos.x * 3, game.GetPlayer(0).GetBoardPos().y + (_startPos.y + i) * 3 }, L"╭─╮", _colour);
-									Print({ game.GetPlayer(0).GetBoardPos().x + _startPos.x * 3, game.GetPlayer(0).GetBoardPos().y + (_startPos.y + i) * 3 + 2 }, L"╰─╯", _colour);
-								}
-							}
-						}
-						
+			SlowPrint({ 3,4 }, L"Manual", colours[0]);
+			SlowPrint({ 3,5 }, L"Automatic", colours[1]);
 
-						Sleep(100);
-					}
+			while (true)
+			{
 
+				if (GetKeyState(VK_UP) & 0x8000) {
+					colours.push_back(colours[0]); 
+					colours.erase(colours.begin());
 				}
-				_index++;
-			}
+				if (GetKeyState(VK_DOWN) & 0x8000) {
+					colours.push_back(colours[0]);
+					colours.erase(colours.begin());
+				}
 
 
-			/*if (GetKeyState(VK_LEFT) & 0x8000) { game.GetPlayer(0).MoveCursorRight(-1); DrawBoard(game.GetPlayer(0)); };
-			if (GetKeyState(VK_RIGHT) & 0x8000) { game.GetPlayer(0).MoveCursorRight(1); DrawBoard(game.GetPlayer(0)); };
-			if (GetKeyState(VK_UP) & 0x8000) { game.GetPlayer(0).MoveCursorDown(-1); DrawBoard(game.GetPlayer(0)); };
-			if (GetKeyState(VK_DOWN) & 0x8000) { game.GetPlayer(0).MoveCursorDown(1); DrawBoard(game.GetPlayer(0)); };
-			if (GetKeyState('R') & 0x8000) {
-				game.GetPlayer(0).GetShip(0).SetDirection(abs(game.GetPlayer(0).GetShip(0).GetDirection() - 1));
 
-				Print({40,40}, to_wstring(game.GetPlayer(0).GetShip(0).GetDirection()), 15);
+				Print({ 3,4 }, L"Manual", colours[0]);
+				Print({ 3,5 }, L"Automatic", colours[1]);
 
+				if (GetKeyState(VK_RETURN) & 0x8000) {
+					system("CLS");
+					break;
+				}
 
-			}
-			if (GetKeyState(VK_SPACE) & 0x8000) {
-
-			}
-			else {
-				game.GetPlayer(0).GetShip(0).SetStartPos(game.GetPlayer(0).GetCursor());
-				game.GetPlayer(0).GetShip(0).Rebuild();
-				game.GetPlayer(0).ResetBoard();
-				game.UpdateBoards();
-
-				DrawBoard(game.GetPlayer(0));
-
-				DrawCursor(game.GetPlayer(0), 2);
+				
 
 				Sleep(100);
-			}*/
+			}
 
+			if (colours[0] == 10) {
+				ManualPlace(game, toPlace);
+			}
+			else {
+				AutomaticPlace(game, toPlace, 0);
+			}
 
+			game.ToggleDebug();
 
-			//if (!created) BasicStuff(game); created = true;
-			//game.state = 2;
-			break;
+			game.GetPlayer(1).ResetBoard(); game.UpdateBoards();
+
+			DrawBoard(game.GetPlayer(1));
+
+			game.state = 2;
+			break;	
 		}
 
 		case 2:
+			if (game.GetPlayer(1).GetHits().size() >= 17) {
+				if (endAfter) {
+					game.state = 5;
+					break;
+				}
+				game.state = 4;
+				break;
+			}
+			if (game.GetPlayer(0).GetHits().size() >= 17) {
+				if (endAfter && game.GetPlayerTurn() == 0) {
+					game.state = 3;
+				}
+				else {
+					endAfter = true;
+					game.SetPlayerTurn(1);
+				}
+			}
+
 			if (GetKeyState(VK_CONTROL) & 0x8000 && GetKeyState('D') & 0x8000) { game.ToggleDebug(); game.GetPlayer(1).ResetBoard(); game.UpdateBoards(); DrawBoard(game.GetPlayer(1)); };
 			PlayerTurn(&game, game.GetPlayerTurn());
+			
 			break;
 
 		case 3:
+			//Loss
+			system("CLS");
+			SlowPrint({0,0},L"LOSS", 12, 50);
 			break;
 
 		case 4:
+			//Win
+			system("CLS");
+			SlowPrint({ 0,0 }, L"WIN", 10, 50);
+			break;
+
+		case 5:
+			//Tie
+			system("CLS");
+			SlowPrint({ 0,0 }, L"TIE", 15, 50);
 			break;
 
 		default:

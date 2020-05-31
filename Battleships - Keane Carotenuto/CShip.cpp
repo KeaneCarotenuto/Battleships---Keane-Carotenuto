@@ -8,6 +8,7 @@ using namespace std;
 CShip::CShip(CPosition _startPos, int _length, int _iDirection, wstring _icon, int _colour): m_iDirection(_iDirection), m_startPos(_startPos), m_icon(_icon), m_colour(_colour)
 {
 	for (int i = 0; i < _length; i++) {
+		
 		if (m_iDirection == 0) {
 			AddSegment({ {_startPos.x + i, _startPos.y}, _icon, _colour });
 		}
@@ -36,6 +37,16 @@ int CShip::GetDirection() {
 void CShip::SetStartPos(CPosition _pos)
 {
 	m_startPos = _pos;
+}
+
+int CShip::GetColour()
+{
+	return m_colour;
+}
+
+wstring CShip::GetIcon()
+{
+	return m_icon;
 }
 
 void CShip::SetSegments(vector<CSegment> _newSegment) {

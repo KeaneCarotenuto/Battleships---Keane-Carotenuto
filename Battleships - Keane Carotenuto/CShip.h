@@ -16,8 +16,12 @@ protected:
 	int m_colour;
 	int m_iDirection;
 	vector<CSegment> m_segments;
+	//CPlayer m_owner;
+	
 
 public:
+	
+
 	CShip(CPosition _newPos, int _length, int _iDirection, wstring _icon, int _colour);
 
 	void SetName(wstring _wstrNewName);
@@ -27,6 +31,9 @@ public:
 	int GetDirection();
 
 	void SetStartPos(CPosition _pos);
+
+	int GetColour();
+	wstring GetIcon();
 
 	void SetSegments(vector<CSegment> _newPos);
 	void AddSegment(CSegment _segment);

@@ -9,7 +9,7 @@ class CGame
 {
 protected:
 	bool m_isRunning = true;
-	bool m_debug = false;
+	bool m_debug = true;
 	int m_pTurn = 0;
 	vector<CPlayer> m_players;
 	
@@ -26,6 +26,7 @@ public:
 	bool IsRunning();
 
 	void SwapPlayerTurn();
+	void SetPlayerTurn(int _player);
 	int GetPlayerTurn();
 
 	void AddPlayer(CPlayer _newPlayer);
