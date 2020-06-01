@@ -13,6 +13,9 @@ Author : Keane Carotenuto
 Mail : Keane.Car8958@mediadesign.school.nz
 **************************************************************************/
 
+#pragma region "Classes and Libraries"
+//I enclude all of the required classes and libraries
+
 #include <iostream>
 #include <windows.h>
 #include <time.h>
@@ -31,38 +34,50 @@ Mail : Keane.Car8958@mediadesign.school.nz
 #include"CShip.h"
 #include"CPlayer.h"
 
-
 using namespace std;
+#pragma endregion
 
+#pragma region "Declaring Functions"
+//Declaring all of my Functions
 
+//Initialisation Funcs
 void SetupGame();
 void SetFont();
 
-void DrawBoard(CPlayer& player);
-void DrawCursor(CPlayer& player, int colour);
-
+//Main Game Loop Funcs
 wstring Login();																											// TF: Variable Type
-void DisplayControls(CPosition _pos, int _type);
 void SetUpMenu(CGame* game);
 void MenuControls(CGame* game);
 void ShipPlacement(CGame* game, wstring _userName);
 void PlayGame(CGame* game, bool &endAfter);
 void EndGame(CGame* game, int _endVal);
 
+//Sub Game Loop Funcs
 void PlayerTurn(CGame *game, int _beingAttacked);
 void AutomaticPlace(CGame& game, const CShip(&toPlace)[5], int _player);													// TF: Constant
 void ManualPlace(CGame& game, const CShip(&toPlace)[5]);																	// TF: Constant
 bool CheckTempShip(CGame& game, CPosition& _startPos, CShip& _ship, int& _direction, int _player);							// TF: Variable Type
 
+//Drawing Funcs
+void DrawBoard(CPlayer& player);
+void DrawCursor(CPlayer& player, int colour);
+void DisplayControls(CPosition _pos, int _type);
 void Print(CPosition pos, wstring str, int effect = 15);																	// TF: Default Parameter
 void SlowPrint(CPosition _pos, wstring _message, int effect = 15, int _wait = 20);											// TF: Default Parameter
 void GotoXY(CPosition pos);
 
+#pragma endregion
+
+#pragma region "Main Loop"
+//The Main game loop
+
 int main() {
 	SetupGame();
 
+	//Wait for Game to Boot
 	Sleep(1000);
 	
+	//Get User's Name
 	wstring userName = Login();
 
 	Sleep(1000);
@@ -71,11 +86,11 @@ int main() {
 
 	SetFont();
 
+	//Create Main Game Class Instance
 	CGame *game = new CGame();																								// TF: Pointer Initialised
 																															// TF: Dynamic Memory
 																															// TF: Class Instance
 
-	
 	SetUpMenu(game);
 	
 	bool endAfter = false;																									 // TF: Variable Type
@@ -84,15 +99,18 @@ int main() {
 		switch (game->state)																								// TF: Pointer Dereferenced
 		{
 		case 0:
+			//Displays the Menu
 			MenuControls(game);
 			break;
 
 		case 1: {
+			//Starts the Ship Placement Section
 			ShipPlacement(game, userName);
 			break;	
 		}
 
 		case 2:
+			//The actual Shooting Part
 			PlayGame(game, endAfter);
 			break;
 
@@ -117,6 +135,7 @@ int main() {
 		
 	}
 
+	//Removes game From Dynamic Memory and Waits for user to press Enter to Exit
 	delete game;																											// TF: Dynamic Memory
 																															// TF: Destructor
 	game = nullptr;
@@ -127,6 +146,12 @@ int main() {
 	return 0;
 }
 
+#pragma endregion
+
+#pragma region "Setup Functions"
+//These Functions are used to set up the game before it starts
+
+//Changes the font of the Console
 void SetFont() {
 	CONSOLE_FONT_INFOEX cfi;
 	cfi.cbSize = sizeof cfi;
@@ -139,6 +164,7 @@ void SetFont() {
 	SetCurrentConsoleFontEx(GetStdHandle(STD_OUTPUT_HANDLE), FALSE, &cfi);
 }
 
+//Changes The console size etc
 void SetupGame()
 {
 	//Enable the use of Unicode
@@ -166,6 +192,12 @@ void SetupGame()
 	srand(static_cast <unsigned> (time(0)));																				// TF: Pseudo Random Number
 }
 
+#pragma endregion
+
+#pragma region "Main Game"
+//The Functions that Actually Control most of the gameplay
+
+//A simple Login screen with a theme, really to just get name of player
 wstring Login()
 {
 	wstring tempName;																										// TF: Variable Type
@@ -197,52 +229,13 @@ wstring Login()
 	return tempName;
 }
 
-void DisplayControls(CPosition _pos, int _type)
+//Creates the Board for the interactive Menu
+void SetUpMenu(CGame* game)
 {
-	int x = _pos.x;																											// TF: Variable Type
-	int y = _pos.y;																											// TF: Variable Type
-
-	Print({x + 0, y + 0}, L"CONTROLS:", 15);																				// TF: Arithmetic Operator
-	
-	if (_type == 1) {																										// TF: Relational Operator
-		Print({ x + 1, y + 2 }, L"Text Menus:", 7);
-		Print({ x + 2, y + 3 }, L"Use <UP> and <DOWN> arrow keys to change Selection", 8);
-		Print({ x + 2, y + 4 }, L"Press <ENTER> to Confirm Selection", 8);
-
-		Print({ x + 1, y + 6 }, L"On Game Board:", 7);
-		Print({ x + 2, y + 7 }, L"Use <ARROW KEYS> to Move Aim Reticle", 8);
-		Print({ x + 2, y + 8 }, L"Press <SPACE> to fire at Targeted Position", 8);
-	}
-	
-	if (_type == 2) {
-		Print({ x + 1, y + 2 }, L"Text Menus:", 7);
-		Print({ x + 2, y + 3 }, L"Use <UP> and <DOWN> arrow keys to change Selection", 8);
-		Print({ x + 2, y + 4 }, L"Press <ENTER> to Confirm Selection", 8);
-	}
-
-	if (_type == 3 || _type == 5) {																							// TF: Logical Operator
-		Print({ x + 1, y + 2 }, L"On Game Board:", 7);
-		Print({ x + 2, y + 3 }, L"Use <ARROW KEYS> to Move Aim Reticle", 8);
-		Print({ x + 2, y + 4 }, L"Press <SPACE> to fire at Targeted Position", 8);
-	}
-
-	if (_type == 4) {
-		Print({ x + 1, y + 2 }, L"Ship Placement:", 7);
-		Print({ x + 2, y + 3 }, L"Use <ARROW KEYS> to Move Target Location", 8);
-		Print({ x + 2, y + 4 }, L"Use <R> to Rotate Target Location", 8);
-		Print({ x + 2, y + 5 }, L"Press <SPACE> to Place Ship at Target Location", 8);
-	}
-
-	if (_type == 5) {
-		Print({ x + 2, y + 5 }, L"Press <CTRL>+<D> to Enable Counter Intelligence*", 8);
-		Print({ x + 2, y + 6 }, L"                          *(Debug Mode)", 8);
-	}
-
-}
-
-void SetUpMenu(CGame *game)
-{
+	//Creates temporary Menu Player
 	game->AddPlayer({ L"MENU" });
+	
+	//Adds Ships as Buttons
 	game->GetPlayer(0).AddShip({ {2,2},1,0,L"B",240 });																		// TF: Constructor
 	game->GetPlayer(0).AddShip({ {3,2},1,0,L"A",240 });
 	game->GetPlayer(0).AddShip({ {4,2},1,0,L"T",240 });
@@ -255,22 +248,26 @@ void SetUpMenu(CGame *game)
 	game->GetPlayer(0).AddShip({ {5,8},1,0,L"I",240 });
 	game->GetPlayer(0).AddShip({ {6,8},1,0,L"T",240 });
 
-
+	//Creates Board With Ships
 	game->GetPlayer(0).CreateBoard();
 	game->GetPlayer(0).SetBoardPos({ 5,5 });
 	game->UpdateBoards();
 
 	DrawBoard(game->GetPlayer(0));																							// TF: Reference
 
-	DisplayControls({40, 5}, 3);
+	DisplayControls({ 40, 5 }, 3);
 }
 
+//Controls how the user may interact with the Menu
 void MenuControls(CGame* game)
 {
+	//Moves Cursor
 	if (GetKeyState(VK_LEFT) & 0x8000) { game->GetPlayer(0).MoveCursorRight(-1); DrawBoard(game->GetPlayer(0)); };
 	if (GetKeyState(VK_RIGHT) & 0x8000) { game->GetPlayer(0).MoveCursorRight(1); DrawBoard(game->GetPlayer(0)); };
 	if (GetKeyState(VK_UP) & 0x8000) { game->GetPlayer(0).MoveCursorDown(-1); DrawBoard(game->GetPlayer(0)); };
 	if (GetKeyState(VK_DOWN) & 0x8000) { game->GetPlayer(0).MoveCursorDown(1); DrawBoard(game->GetPlayer(0)); };
+
+	//Checks if player Selects Battle Or Quit
 	if (GetKeyState(VK_SPACE) & 0x8000) {
 		bool theHit = game->GetPlayer(0).CalcShot(game->GetPlayer(0).GetCursor());
 		game->UpdateBoards();
@@ -288,7 +285,7 @@ void MenuControls(CGame* game)
 			Sleep(500);
 			game->state = 1;
 		}
-		else if (theHit && game->GetPlayer(0).GetCursor().y == 8){															// TF: Logical Operator
+		else if (theHit && game->GetPlayer(0).GetCursor().y == 8) {															// TF: Logical Operator
 			game->StopGame();
 			return;
 		}
@@ -300,8 +297,10 @@ void MenuControls(CGame* game)
 	}
 }
 
+//Manages The Placements of the Ships
 void ShipPlacement(CGame* game, wstring _userName)
 {
+	//Creates an array of the Ships that need to be placed
 	const CShip toPlace[5]{																							// TF: Constant
 				{ {0,0},5,0,L"A",240 },
 				{ {0,0},4,0,L"B",224 },
@@ -310,6 +309,7 @@ void ShipPlacement(CGame* game, wstring _userName)
 				{ {0,0},2,0,L"P",176 }
 	};																												// TF: Array
 
+	//Creates Players
 	game->AddPlayer(_userName);
 
 	game->GetPlayer(0).CreateBoard();
@@ -320,10 +320,12 @@ void ShipPlacement(CGame* game, wstring _userName)
 	game->GetPlayer(1).CreateBoard();
 	game->GetPlayer(1).SetBoardPos({ 40,5 });
 
+	//Places Enemy Ships
 	AutomaticPlace(*game, toPlace, 1);
 
 	system("CLS");
 
+	//Asks user what Placement Method they want to use
 	SlowPrint({ 2,2 }, L"Select Ship Deployment Mode:", 15, 20);
 
 	vector<int> colours{ 10,15 };
@@ -360,6 +362,7 @@ void ShipPlacement(CGame* game, wstring _userName)
 		Sleep(100);
 	}
 
+	//Checks which method the player chose and goes to that func
 	if (colours[0] == 10) {
 		DisplayControls({ 40, 15 }, 4);
 		ManualPlace(*game, toPlace);
@@ -372,6 +375,7 @@ void ShipPlacement(CGame* game, wstring _userName)
 
 	DisplayControls({ 5, 40 }, 5);
 
+	//Hides Enemy Ships
 	game->SetDebug(false);
 
 	game->GetPlayer(1).ResetBoard(); game->UpdateBoards();
@@ -381,8 +385,10 @@ void ShipPlacement(CGame* game, wstring _userName)
 	game->state = 2;
 }
 
+//Manages Users shooting at eachother
 void PlayGame(CGame* game, bool &endAfter)
 {
+	//Checks for Win/Loss/Tie
 	if (game->GetPlayer(1).GetHits().size() >= 17) {																		// TF: Relational Operator
 		if (endAfter) {
 			game->state = 5;
@@ -401,10 +407,12 @@ void PlayGame(CGame* game, bool &endAfter)
 		}
 	}
 
+	//Manages users shooting and turns
 	if (GetKeyState(VK_CONTROL) & 0x8000 && GetKeyState('D') & 0x8000) { game->ToggleDebug(); game->GetPlayer(1).ResetBoard(); game->UpdateBoards(); DrawBoard(game->GetPlayer(1)); };
 	PlayerTurn(game, game->GetPlayerTurn());
 }
 
+//Manages What happens when the game ends
 void EndGame(CGame* game, int _endVal)
 {
 	system("CLS");
@@ -440,6 +448,8 @@ void EndGame(CGame* game, int _endVal)
 
 	}
 
+
+	//Displays stats
 	SlowPrint({5,12}, game->GetPlayer(0).GetName());
 	SlowPrint({ 5,14 }, L"Shots:  " + to_wstring(game->GetPlayer(1).GetShots().size()));
 	SlowPrint({ 5,15 }, L"Hits:   " + to_wstring(game->GetPlayer(1).GetHits().size()));
@@ -450,7 +460,7 @@ void EndGame(CGame* game, int _endVal)
 	SlowPrint({ 20,15 }, L"Hits:   " + to_wstring(game->GetPlayer(0).GetHits().size()));
 	SlowPrint({ 20,16 }, L"Misses: " + to_wstring(game->GetPlayer(0).GetShots().size() - game->GetPlayer(0).GetHits().size()));
 
-
+	//Waits for user to press enter, then resets the whole gameand goes to menu
 	Print({ 10,20 }, L"Press <ENTER> to Return To Menu", 12);
 	while (true) {
 		if (GetKeyState(VK_RETURN) & 0x8000) {
@@ -465,32 +475,79 @@ void EndGame(CGame* game, int _endVal)
 	}
 }
 
+#pragma endregion
+
+#pragma region "Sub Game"
+//The Functions that the main game loop uses to for some tasks
+
+//Lets the players shoot at eachother
 void PlayerTurn(CGame *game, int _beingAttacked)
 {
+	//If The User is Attacking the CPU
 	if (_beingAttacked == 1) {
+		//Draws Indicator
 		Print({ 4,36 },  L"╙██████████████████████████████╜",0);
 		Print({ 39,36 }, L"╙██████████████████████████████╜", 10);
+
+		//Manages Cursor Movement
 		if (GetKeyState(VK_LEFT) & 0x8000) { game->GetPlayer(_beingAttacked).MoveCursorRight(-1); DrawBoard(game->GetPlayer(_beingAttacked)); };
 		if (GetKeyState(VK_RIGHT) & 0x8000) { game->GetPlayer(_beingAttacked).MoveCursorRight(1); DrawBoard(game->GetPlayer(_beingAttacked)); };
 		if (GetKeyState(VK_UP) & 0x8000) { game->GetPlayer(_beingAttacked).MoveCursorDown(-1); DrawBoard(game->GetPlayer(_beingAttacked)); };
 		if (GetKeyState(VK_DOWN) & 0x8000) { game->GetPlayer(_beingAttacked).MoveCursorDown(1); DrawBoard(game->GetPlayer(_beingAttacked)); };
+
+		//Shoots and manages the shot result
 		if (GetKeyState(VK_SPACE) & 0x8000) {
 			game->m_AImoves = 0;
 			bool theHit = game->GetPlayer(_beingAttacked).CalcShot(game->GetPlayer(_beingAttacked).GetCursor());
 			game->UpdateBoards();
 			DrawBoard(game->GetPlayer(_beingAttacked));
 			Print({ game->GetPlayer(_beingAttacked).GetCursor().x * 3 + game->GetPlayer(_beingAttacked).GetBoardPos().x, game->GetPlayer(_beingAttacked).GetCursor().y * 3 - 1 + game->GetPlayer(_beingAttacked).GetBoardPos().y }, theHit ? L"HIT " : L"MISS", theHit ? 47 : 79);
+			
+			int tempi = 5;
+			for (wstring _wstr : game->m_allSunk) {
+				Print({ 75, tempi }, _wstr, 0);
+					tempi++;
+			}
+			game->m_allSunk.clear();
+			for (CPlayer _player : game->GetPlayers()) {
+				for (CShip _ship : _player.GetShips()) {
+					bool sunk = true;
+					for (CSegment _segment : _ship.GetSegments()) {
+						if (_segment.GetHitState() == 0) {
+							sunk = false;
+							break;
+						}
+					}
+					if (sunk) {
+						game->m_allSunk.push_back(_player.GetName() + L"'s " + _ship.GetName() + L" SUNK");
+					}
+				}
+			}
+			tempi = 5;
+			
+			for (wstring _wstr : game->m_allSunk) {
+				Print({75, tempi}, _wstr, (_wstr.find(L"CPU's") ? 12 : 10));
+				tempi++;
+			}
 			game->SwapPlayerTurn();
 		};
 	}
+	//If the CPU is attacking the User
 	else {
+		//Draws Indicator
 		Print({ 4,36 },  L"╙██████████████████████████████╜", 12);
 		Print({ 39,36 }, L"╙██████████████████████████████╜", 0);
+
+		//Basically the CPU AI
 		CPosition betterShot = { -1,-1 };
+		
+		//For each successful hit
 		for (CPosition _hit : game->GetPlayer(_beingAttacked).GetHits()) {
 			
+			//Create array of Spots to check around the hit
 			vector<CPosition> spots { {0, -1}, { 0, 1 }, { -1, 0 }, { 1, 0 } };
 			
+			//Loops through each spot
 			while (spots.size() > 0) {																						// TF: Conditional Statement
 				int randInt = (rand() % spots.size());																		// TF: Arithmetic Operator
 																															// TF: Pseudo Random Number
@@ -499,27 +556,36 @@ void PlayerTurn(CGame *game, int _beingAttacked)
 
 				bool shouldShoot = true;
 
+				//Checks if the spot is off the board, or if there has already been a shot there
+				//This is 
 				for (CPosition _shot : game->GetPlayer(_beingAttacked).GetShots()) {
-					if ((_hit.x + x == _shot.x && _hit.y + y == _shot.y) || (_hit.x + x > 9 || _hit.y + y > 9) || (_hit.x + x < 0 || _hit.y + y < 0)) shouldShoot = false;
+					if ((_hit.x + x == _shot.x && _hit.y + y == _shot.y) || (_hit.x + x > 9 || _hit.y + y > 9) || (_hit.x + x < 0 || _hit.y + y < 0)) {
+						shouldShoot = false;
+						break;
+					}
 				}
 
+				//If there is a shot to be taken that is adjacent to the hit, it will take it
 				if (shouldShoot) {
 					betterShot = { _hit.x + x, _hit.y + y };
 					Print({ 40,40 }, to_wstring(_hit.x + x) + L", " + to_wstring(_hit.y + y), 15);
 					goto stopCheck;
 				}
 
+				//removes the spot used form the list
 				spots.erase(spots.begin() + randInt);
 			}
 		}
 	stopCheck:
 
-
+		//If there is a better shot, it takes it
 		if (betterShot.x != -1 && betterShot.y != -1) {																		// TF: Relational Operator
 			game->m_AImoves = 10;
 			game->GetPlayer(_beingAttacked).SetCursor(betterShot);
 		}
+		//Otherwise It chooses a random spot
 		else {
+			//The code only fires in every second spot, as this reduces the total shots, and you can never miss a ship, making it optimal
 			game->GetPlayer(_beingAttacked).SetCursor({ rand() % 10,rand() % 10 });											// TF: Arithmetic Operator
 			while ((game->GetPlayer(_beingAttacked).GetCursor().x % 2 == 0 && game->GetPlayer(_beingAttacked).GetCursor().y % 2 != 0) || (game->GetPlayer(_beingAttacked).GetCursor().x % 2 != 0 && game->GetPlayer(_beingAttacked).GetCursor().y % 2 == 0))
 			{
@@ -531,11 +597,12 @@ void PlayerTurn(CGame *game, int _beingAttacked)
 		}
 		game->m_AImoves++;
 
-		
+		//Checks to see if the random spot has already been shot at, if so, makes the CPU choose a new spot (can be quite long end game)
 		for (CPosition _shot : game->GetPlayer(_beingAttacked).GetShots()) {												// TF: Iteration Structure
 			if (_shot.x == game->GetPlayer(_beingAttacked).GetCursor().x && _shot.y == game->GetPlayer(_beingAttacked).GetCursor().y) game->m_AImoves--;
 		}
 
+		//If the spot chosen is good, it fires there
 		if (game->m_AImoves > 1) {
 			game->m_AImoves = 0;
 			bool theHit = game->GetPlayer(_beingAttacked).CalcShot(game->GetPlayer(_beingAttacked).GetCursor());
@@ -552,34 +619,46 @@ void PlayerTurn(CGame *game, int _beingAttacked)
 	Sleep(100);
 }
 
-void SlowPrint(CPosition _pos, wstring _message, int effect, int _wait) {
-	GotoXY(_pos);
-	for (wchar_t _char : _message) {																						// TF: Iteration Structure
-		Sleep(_wait);
-		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), effect);
-		wcout << _char;
-		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15);
+//Manages the Automatic Placement of the Ships
+void AutomaticPlace(CGame& game, const CShip(&toPlace)[5], int _player) {													// TF: Array
+	//For each ship that needs to be placed
+	for (CShip _ship : toPlace) {
+		CPosition _startPos{ 0,0 };
+		int _direction = 0;
+		int _placed = false;
+		bool _canPlace = false;
+
+		//add some controls on the side, as well as display the ship Infortmation
+
+		//keeps looking for a good spot to place
+		while (!_placed)
+		{
+			CPosition _startPos{ rand() % 10,rand() % 10 };																	// TF: Arithmetic Operator
+			int _direction = rand() % 2;																					// TF: Pseudo Random Number
+
+			//Checks if spot is bad
+			if (CheckTempShip(game, _startPos, _ship, _direction, _player)) {
+				_canPlace = true;
+			}
+
+			//If spot is good, places it and moves on to next ship to place
+			if (_canPlace == true) {
+				_placed = true;
+				game.GetPlayer(_player).AddShip({ _startPos,static_cast<int>(_ship.GetSegments().size()),_direction,_ship.GetIcon(),_ship.GetColour() });
+				game.UpdateBoards();
+				continue;
+			}
+
+
+		}
+
+
 	}
 }
 
-bool CheckTempShip(CGame& game, CPosition& _startPos, CShip& _ship, int& _direction, int _player) {
-	if ((_startPos.x + _ship.GetSegments().size() - 1 > 9 && _direction == 0) || (_startPos.y + _ship.GetSegments().size() - 1 > 9 && _direction == 1)) return false;
-	for (int i = 0; i < _ship.GetSegments().size(); i++) {																	// TF: Iteration Structure
-
-		CPosition _tempPos;
-		if (_direction == 0) {
-			_tempPos = { _startPos.x + i, _startPos.y };
-		}
-		else {
-			_tempPos = { _startPos.x, _startPos.y + i };
-		}
-		if (game.GetPlayer(_player).CheckHit(_tempPos)) return false;
-
-	}
-	return true;
-}
-
+//Manages the user placing thier own ships
 void ManualPlace(CGame& game, const CShip (&toPlace)[5]) {																	// TF: Array
+	//For each ship that needs to be placed
 	for (CShip _ship : toPlace) {
 		CPosition _startPos = CPosition(game.GetPlayer(0).GetCursor());														// TF: Copy Constructor
 		int _direction = 0;
@@ -588,31 +667,36 @@ void ManualPlace(CGame& game, const CShip (&toPlace)[5]) {																	// TF
 		bool _update = true;
 		bool _canPlace = true;
 
-		//add some controls on the side, as well as display the ship Infortmation
-
+		//Shows infortmation of ship being placed
 		SlowPrint({ 40,5 }, L"Ship: " + _ship.GetName(), 15, 20);
 		SlowPrint({ 40,6 }, L"Length: " + to_wstring(_ship.GetSegments().size()), 15, 15);
 		SlowPrint({ 40,7 }, L"Symbol: " + _ship.GetIcon(), 15, 10);
 		SlowPrint({ 40,8 }, L"Colour: ", 15, 5);
 		SlowPrint({ 48,8 }, L"╬", _ship.GetColour(), 5);
 
+		//While the ship hasnt been placed
 		while (!_placed)																									// TF: Logical Operator
 		{
+			//manages movement of the target position
 			if (GetKeyState(VK_LEFT) & 0x8000) { game.GetPlayer(0).MoveCursorRight(-1); DrawBoard(game.GetPlayer(0)); _update = true; };
 			if (GetKeyState(VK_RIGHT) & 0x8000) { game.GetPlayer(0).MoveCursorRight(1); DrawBoard(game.GetPlayer(0)); _update = true; };
 			if (GetKeyState(VK_UP) & 0x8000) { game.GetPlayer(0).MoveCursorDown(-1); DrawBoard(game.GetPlayer(0)); _update = true; };
 			if (GetKeyState(VK_DOWN) & 0x8000) { game.GetPlayer(0).MoveCursorDown(1); DrawBoard(game.GetPlayer(0)); _update = true; };
+
+			//Rotates targe position
 			if (GetKeyState('R') & 0x8000) {
 				_direction = abs(_direction - 1);
 				_update = true;
 			}
 			_canPlace = false;
 
+			//Updates taget pos
 			if (_update) {
 				_startPos.x = game.GetPlayer(0).GetCursor().x;
 				_startPos.y = game.GetPlayer(0).GetCursor().y;
 			}
 
+			//Checks if the ship can be placed in that spot
 			if (CheckTempShip(game, _startPos, _ship, _direction, 0)) {
 				_colour = 26;
 				_canPlace = true;
@@ -621,14 +705,18 @@ void ManualPlace(CGame& game, const CShip (&toPlace)[5]) {																	// TF
 				_colour = 28;
 			}
 
+			//Places Target Ship if it can be then moves on
 			if (GetKeyState(VK_SPACE) & 0x8000 && _canPlace == true) {
 				_placed = true;
+				//Adds ship to player
 				game.GetPlayer(0).AddShip({ _startPos,static_cast<int>(_ship.GetSegments().size()),_direction,_ship.GetIcon(),_ship.GetColour() });
 				game.UpdateBoards();
 
 				DrawBoard(game.GetPlayer(0));
 				continue;
 			}
+
+			//if the user isnt placing the ship, it updates the position and colour of the taget position outline
 			else {
 				if (_update) {
 					_update = false;
@@ -637,7 +725,7 @@ void ManualPlace(CGame& game, const CShip (&toPlace)[5]) {																	// TF
 
 					//DrawCursor(game.GetPlayer(0), 2);
 
-					for (int i = 0; i < _ship.GetSegments().size(); i++) {
+					for (int i = 0; i < static_cast<int>(_ship.GetSegments().size()); i++) {
 
 						if (_direction == 0) {
 							if ((_startPos.x + i) > 9)  continue;
@@ -658,6 +746,7 @@ void ManualPlace(CGame& game, const CShip (&toPlace)[5]) {																	// TF
 
 		}
 
+		//Removes the Ship Info for the next info
 		SlowPrint({ 40,5 }, L"Ship: " + _ship.GetName(), 0, 0);
 		SlowPrint({ 40,6 }, L"Length: " + to_wstring(_ship.GetSegments().size()), 0, 0);
 		SlowPrint({ 40,7 }, L"Symbol: " + _ship.GetIcon(), 0, 0);
@@ -667,51 +756,52 @@ void ManualPlace(CGame& game, const CShip (&toPlace)[5]) {																	// TF
 	}
 }
 
-void AutomaticPlace(CGame& game, const CShip(&toPlace)[5], int _player) {													// TF: Array
-	for (CShip _ship : toPlace) {
-		CPosition _startPos{ 0,0 };
-		int _direction = 0;
-		int _placed = false;
-		bool _canPlace = false;
+//Checks if the target position and length given is open space or is occupied
+bool CheckTempShip(CGame& game, CPosition& _startPos, CShip& _ship, int& _direction, int _player) {
+	//if out of bounds
+	if ((_startPos.x + _ship.GetSegments().size() - 1 > 9 && _direction == 0) || (_startPos.y + _ship.GetSegments().size() - 1 > 9 && _direction == 1)) return false;
 
-		//add some controls on the side, as well as display the ship Infortmation
+	//If Colliding with another ship
+	for (int i = 0; i < static_cast<int>(_ship.GetSegments().size()); i++) {																	// TF: Iteration Structure
 
-		while (!_placed)
-		{
-			CPosition _startPos{ rand() % 10,rand() % 10 };																	// TF: Arithmetic Operator
-			int _direction = rand() % 2;																					// TF: Pseudo Random Number
-
-			if (CheckTempShip(game, _startPos, _ship, _direction, _player)) {
-				_canPlace = true;
-			}
-
-			if (_canPlace == true) {
-				_placed = true;
-				game.GetPlayer(_player).AddShip({ _startPos,static_cast<int>(_ship.GetSegments().size()),_direction,_ship.GetIcon(),_ship.GetColour() });
-				game.UpdateBoards();
-				continue;
-			}
-
-
+		CPosition _tempPos;
+		if (_direction == 0) {
+			_tempPos = { _startPos.x + i, _startPos.y };
 		}
-
+		else {
+			_tempPos = { _startPos.x, _startPos.y + i };
+		}
+		if (game.GetPlayer(_player).CheckHit(_tempPos)) return false;
 
 	}
+	return true;
 }
 
+#pragma endregion
+
+#pragma region "Drawing Functions"
+//Functions responsible for Drawing up things on the screen
+
+//Drawing the Player's Boards on screen
 void DrawBoard(CPlayer& player) {																							// TF: Reference
 	int iy = 0;
+	//Print Name
 	Print({ player.GetBoardPos().x, player.GetBoardPos().y - 2 }, player.GetName() + L"'s Ships", 10);						// TF: Reference
+	
+																															//Print Boarder around board
 	for (int y = 0; y < 32; y++) {
 		for (int x = 0; x < 32; x++) {
 			if (x > 0 && x < 31 && y >0 && y < 31) continue;
 			Print({ x + player.GetBoardPos().x - 1,y + player.GetBoardPos().y - 1 }, L" ", 119);
 		}
 	}
+	
+	//Prints Ships and water
 	for (vector<CSegment> y : player.m_board) {
 		int ix = 0;
 		for (CSegment x : y) {
 
+			//Prints Appropriate symbols and colours of board spaces
 			wstring spacer = L" ";
 			int _colour = 15;
 			if (x.GetHitState() == -2) {
@@ -723,7 +813,7 @@ void DrawBoard(CPlayer& player) {																							// TF: Reference
 				spacer = (x.GetHitState() == 1 ? L"╳" : L" ");
 			}
 
-
+			//prints each segment
 			Print({ ix * 3 + player.GetBoardPos().x ,iy * 3 + player.GetBoardPos().y }, spacer + spacer + spacer, _colour);
 			Print({ ix * 3 + player.GetBoardPos().x ,iy * 3 + player.GetBoardPos().y + 1 }, spacer + x.GetIcon() + spacer, _colour);
 			Print({ ix * 3 + player.GetBoardPos().x ,iy * 3 + player.GetBoardPos().y + 2 }, spacer + spacer + spacer, _colour);
@@ -733,6 +823,7 @@ void DrawBoard(CPlayer& player) {																							// TF: Reference
 	}
 }
 
+//Draws the specified player's Cursor
 void DrawCursor(CPlayer& player, int colour)
 {
 	int posColour = player.m_board[player.GetCursor().y][player.GetCursor().x].GetColour();
@@ -751,7 +842,50 @@ void DrawCursor(CPlayer& player, int colour)
 	Print({ xpos, ypos + 1 }, L"├", newColour);
 }
 
-#pragma region "Printing Functions"
+//Manages which Controls to display
+void DisplayControls(CPosition _pos, int _type)
+{
+	int x = _pos.x;																											// TF: Variable Type
+	int y = _pos.y;																											// TF: Variable Type
+
+	Print({ x + 0, y + 0 }, L"CONTROLS:", 15);																				// TF: Arithmetic Operator
+
+	if (_type == 1) {																										// TF: Relational Operator
+		Print({ x + 1, y + 2 }, L"Text Menus:", 7);
+		Print({ x + 2, y + 3 }, L"Use <UP> and <DOWN> arrow keys to change Selection", 8);
+		Print({ x + 2, y + 4 }, L"Press <ENTER> to Confirm Selection", 8);
+
+		Print({ x + 1, y + 6 }, L"On Game Board:", 7);
+		Print({ x + 2, y + 7 }, L"Use <ARROW KEYS> to Move Aim Reticle", 8);
+		Print({ x + 2, y + 8 }, L"Press <SPACE> to fire at Targeted Position", 8);
+	}
+
+	if (_type == 2) {
+		Print({ x + 1, y + 2 }, L"Text Menus:", 7);
+		Print({ x + 2, y + 3 }, L"Use <UP> and <DOWN> arrow keys to change Selection", 8);
+		Print({ x + 2, y + 4 }, L"Press <ENTER> to Confirm Selection", 8);
+	}
+
+	if (_type == 3 || _type == 5) {																							// TF: Logical Operator
+		Print({ x + 1, y + 2 }, L"On Game Board:", 7);
+		Print({ x + 2, y + 3 }, L"Use <ARROW KEYS> to Move Aim Reticle", 8);
+		Print({ x + 2, y + 4 }, L"Press <SPACE> to fire at Targeted Position", 8);
+	}
+
+	if (_type == 4) {
+		Print({ x + 1, y + 2 }, L"Ship Placement:", 7);
+		Print({ x + 2, y + 3 }, L"Use <ARROW KEYS> to Move Target Location", 8);
+		Print({ x + 2, y + 4 }, L"Use <R> to Rotate Target Location", 8);
+		Print({ x + 2, y + 5 }, L"Press <SPACE> to Place Ship at Target Location", 8);
+	}
+
+	if (_type == 5) {
+		Print({ x + 2, y + 5 }, L"Press <CTRL>+<D> to Enable Counter Intelligence*", 8);
+		Print({ x + 2, y + 6 }, L"                          *(Debug Mode)", 8);
+	}
+
+}
+
 //Used to print out text at the specified coordinate, with the specified effect.
 void Print(CPosition pos, wstring str, int effect) {
 	GotoXY(pos);
@@ -759,6 +893,17 @@ void Print(CPosition pos, wstring str, int effect) {
 	wcout << str;
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15);
 };
+
+//Prints text at coord with colour one letter at a time
+void SlowPrint(CPosition _pos, wstring _message, int effect, int _wait) {
+	GotoXY(_pos);
+	for (wchar_t _char : _message) {																						// TF: Iteration Structure
+		Sleep(_wait);
+		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), effect);
+		wcout << _char;
+		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15);
+	}
+}
 
 //Used to move the Console Cursor to a point on the screen for more accurate text management.
 void GotoXY(CPosition pos) {
@@ -768,18 +913,3 @@ void GotoXY(CPosition pos) {
 	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), point);
 };
 #pragma endregion
-
-/*
-text rainbow
-
-wstring val = L"0";
-	for (int y = 0; y < 16; y++) {
-		for (int x = 0; x < 16; x++) {
-			while (val.length() < 3) {
-				val = L"0" + val;
-			}
-			Print({ y*4,x }, val, stoi(val));
-			val = to_wstring(stoi(val) +1);
-		}
-	}
-*/

@@ -1,6 +1,7 @@
 #include "CPlayer.h"
 
 #include <algorithm>
+#include <cmath>
 
 using namespace std;
 
@@ -30,8 +31,8 @@ CPosition CPlayer::GetBoardPos()
 
 void CPlayer::ResetBoard()
 {
-	for (int y = 0; y < m_board.size(); y++) {
-		for (int x = 0; x < m_board[0].size(); x++) {
+	for (int y = 0; y < static_cast<int>(m_board.size()); y++) {
+		for (int x = 0; x < static_cast<int>(m_board[0].size()); x++) {
 			m_board[y][x] = { -1 };
 		}
 	}

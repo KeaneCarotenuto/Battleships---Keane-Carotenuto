@@ -20,6 +20,7 @@ public:																														// TF: Access Specifier
 
 	int state = 0;
 	int m_AImoves = 0;
+	vector<wstring> m_allSunk;
 
 	void StartGame();
 	void StopGame();
