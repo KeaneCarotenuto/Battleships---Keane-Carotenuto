@@ -497,6 +497,11 @@ void PlayerTurn(CGame *game, int _beingAttacked)
 
 		//Shoots and manages the shot result
 		if (GetKeyState(VK_SPACE) & 0x8000) {
+			for (CPosition _shot : game->GetPlayer(_beingAttacked).GetShots()) {
+				if (_shot.x == game->GetPlayer(_beingAttacked).GetCursor().x && _shot.y == game->GetPlayer(_beingAttacked).GetCursor().y) {
+					goto CantShoot;
+				}
+			}
 			game->m_AImoves = 0;
 			bool theHit = game->GetPlayer(_beingAttacked).CalcShot(game->GetPlayer(_beingAttacked).GetCursor());
 			game->UpdateBoards();
@@ -531,6 +536,7 @@ void PlayerTurn(CGame *game, int _beingAttacked)
 			}
 			game->SwapPlayerTurn();
 		};
+
 	}
 	//If the CPU is attacking the User
 	else {
@@ -611,6 +617,7 @@ void PlayerTurn(CGame *game, int _beingAttacked)
 			game->SwapPlayerTurn();
 		}
 	}
+CantShoot:
 	
 
 	DrawCursor(game->GetPlayer(_beingAttacked), 4);

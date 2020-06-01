@@ -1,3 +1,18 @@
+/***********************************************************************
+Bachelor of Software Engineering
+Media Design School
+Auckland
+New Zealand
+(c) 2018 Media Design School
+-
+Project: Battleships
+File Name : CShip.h
+Description : This class is used to store the position and segments of each player's ships, along with some other info.
+-
+Author : Keane Carotenuto
+Mail : Keane.Car8958@mediadesign.school.nz
+**************************************************************************/
+
 #pragma once
 #include <string>
 #include <vector>
@@ -20,10 +35,10 @@ protected:
 	
 
 public:
-	
-
+	//Constructor for ship
 	CShip(CPosition _newPos, int _length, int _iDirection, wstring _icon, int _colour);
 
+	//Basic info of ship
 	void SetName(wstring _wstrNewName);
 	wstring GetName();
 
@@ -35,12 +50,12 @@ public:
 	int GetColour();
 	wstring GetIcon();
 
+	//Adds or changes segments
 	void SetSegments(vector<CSegment> _newPos);
 	void AddSegment(CSegment _segment);
 	vector<CSegment> &GetSegments();
 	CSegment &GetSegment(int _index );
 
-	void Rebuild();
-
+	//Use for Manual ship placement
 	void PlaceShip(CPosition _newPos, int _iDir);
 };

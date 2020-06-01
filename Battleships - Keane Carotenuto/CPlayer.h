@@ -1,3 +1,18 @@
+/***********************************************************************
+Bachelor of Software Engineering
+Media Design School
+Auckland
+New Zealand
+(c) 2018 Media Design School
+-
+Project: Battleships
+File Name : CPlayer.h
+Description : This class is used to store the players ships and boards, as well as manage shots
+-
+Author : Keane Carotenuto
+Mail : Keane.Car8958@mediadesign.school.nz
+**************************************************************************/
+
 #pragma once
 #include <string>
 #include <vector>
@@ -17,8 +32,10 @@ protected:
 	CPosition m_cursor;
 
 public:
+	//Basic Constructor
 	CPlayer(wstring _name);
 
+	//The player's board of ships
 	vector<vector<CSegment>> m_board;
 
 	void CreateBoard();
@@ -30,12 +47,14 @@ public:
 	void SetBoardPos(CPosition _pos);
 	CPosition GetBoardPos();
 
+	//Manages player ships
 	void SetShips(vector<CShip> _newShips);
 	vector<CShip> &GetShips();
 	void AddShip(CShip _newShip);
 	CShip &GetShip(int _index);
 	void RemoveShip(int _index);
 
+	//Manages shots/shooting against this player
 	void AddShot(CPosition _pos);
 	vector<CPosition> GetShots();
 
@@ -53,6 +72,7 @@ public:
 	void MoveCursorRight(int _x);
 	void MoveCursorDown(int _y);
 
+	//Checks if two players are equal
 	bool CheckSame(CPlayer& _player);
 	
 };

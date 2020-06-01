@@ -1,5 +1,19 @@
-#include "CPlayer.h"
+/***********************************************************************
+Bachelor of Software Engineering
+Media Design School
+Auckland
+New Zealand
+(c) 2018 Media Design School
+-
+Project: Battleships
+File Name : CPlayer.cpp
+Description : The functions for the Player class.
+-
+Author : Keane Carotenuto
+Mail : Keane.Car8958@mediadesign.school.nz
+**************************************************************************/
 
+#include "CPlayer.h"
 #include <algorithm>
 #include <cmath>
 
@@ -29,6 +43,7 @@ CPosition CPlayer::GetBoardPos()
 	return m_boardPos;
 }
 
+//Resets the board to be just water
 void CPlayer::ResetBoard()
 {
 	for (int y = 0; y < static_cast<int>(m_board.size()); y++) {
@@ -36,8 +51,6 @@ void CPlayer::ResetBoard()
 			m_board[y][x] = { -1 };
 		}
 	}
-
-	// Do some stuff here!
 }
 
 void CPlayer::CreateBoard()
@@ -100,6 +113,7 @@ vector<CPosition> CPlayer::GetHits()
 	return m_hitsAt;
 }
 
+//Checks if a given position contains a ship segment
 bool CPlayer::CheckHit(CPosition _pos)
 {
 	for (CShip& _ship : GetShips()) {
@@ -112,6 +126,7 @@ bool CPlayer::CheckHit(CPosition _pos)
 	return false;
 }
 
+//Calculates if a shot has hit or not, then changes the appropriate values
 bool CPlayer::CalcShot(CPosition _pos)
 {
 	AddShot(_pos);

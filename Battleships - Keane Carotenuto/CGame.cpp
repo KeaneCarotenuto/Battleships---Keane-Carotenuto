@@ -1,4 +1,19 @@
-﻿#include "CGame.h"
+﻿/***********************************************************************
+Bachelor of Software Engineering
+Media Design School
+Auckland
+New Zealand
+(c) 2018 Media Design School
+-
+Project: Battleships
+File Name : CGame.cpp
+Description : The functions for the game class.
+-
+Author : Keane Carotenuto
+Mail : Keane.Car8958@mediadesign.school.nz
+**************************************************************************/
+
+#include "CGame.h"
 #include <string>
 
 using namespace std;
@@ -73,6 +88,7 @@ void CGame::RemovePlayer(int _index)
 	m_players.erase(m_players.begin() + _index);
 }
 
+//Loops through each player, each ship, each segment, and misses then updates thier respective board with the info (Not Drawing)
 void CGame::UpdateBoards()
 {
 	for (CPlayer& _player : GetPlayers()) {
