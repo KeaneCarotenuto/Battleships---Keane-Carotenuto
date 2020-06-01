@@ -7,6 +7,12 @@ using namespace std;
 
 CShip::CShip(CPosition _startPos, int _length, int _iDirection, wstring _icon, int _colour): m_iDirection(_iDirection), m_startPos(_startPos), m_icon(_icon), m_colour(_colour)
 {
+	if (m_icon == L"A") { m_wstrName = L"Aircraft Carrier"; }
+	else if (m_icon == L"B") { m_wstrName = L"Battleship"; }
+	else if (m_icon == L"D") { m_wstrName = L"Destroyer"; }
+	else if (m_icon == L"S") { m_wstrName = L"Submarine"; }
+	else if (m_icon == L"P") { m_wstrName = L"Patrol Boat"; }
+
 	for (int i = 0; i < _length; i++) {
 		
 		if (m_iDirection == 0) {

@@ -7,7 +7,7 @@ using namespace std;
 
 class CGame
 {
-protected:
+private:
 	bool m_isRunning = true;
 	bool m_debug = true;
 	int m_pTurn = 0;
@@ -16,6 +16,8 @@ protected:
 	
 
 public:
+	~CGame();
+
 	int state = 0;
 	int m_AImoves = 0;
 

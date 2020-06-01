@@ -1,7 +1,11 @@
-#include "CGame.h"
+﻿#include "CGame.h"
 #include <string>
 
 using namespace std;
+
+CGame::~CGame()
+{
+}
 
 void CGame::StartGame()
 {
@@ -69,8 +73,11 @@ void CGame::UpdateBoards()
 	for (CPlayer& _player : GetPlayers()) {
 		for (CShip _ship : _player.GetShips()) {
 			for (CSegment _segment : _ship.GetSegments()) {
-				if (_segment.GetHitState() == 0 && _player.checkSame(m_players[m_players.size()-1]) && !GetDebug()) continue;
+				if (_segment.GetHitState() == 0 && _player.CheckSame(m_players[m_players.size()-1]) && !GetDebug()) continue;
 				_player.m_board[_segment.GetPosition().y][_segment.GetPosition().x] = _segment;
+				if (_player.CheckSame(m_players[m_players.size() - 1]) && !GetDebug()) {
+					_player.m_board[_segment.GetPosition().y][_segment.GetPosition().x].SetIcon(L"╳");
+				}
 			}
 		}
 		for (CPosition _miss : _player.GetMisses()) {

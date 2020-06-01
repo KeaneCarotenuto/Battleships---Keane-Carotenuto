@@ -71,32 +71,32 @@ void CPlayer::RemoveShip(int _index)
 
 void CPlayer::AddShot(CPosition _pos)
 {
-	m_shots.push_back(_pos);
+	m_shotsAt.push_back(_pos);
 }
 
 vector<CPosition> CPlayer::GetShots()
 {
-	return m_shots;
+	return m_shotsAt;
 }
 
 void CPlayer::AddMiss(CPosition _pos)
 {
-	m_misses.push_back(_pos);
+	m_missesAt.push_back(_pos);
 }
 
 vector<CPosition> CPlayer::GetMisses()
 {
-	return m_misses;
+	return m_missesAt;
 }
 
 void CPlayer::AddHit(CPosition _pos)
 {
-	m_hits.push_back(_pos);
+	m_hitsAt.push_back(_pos);
 }
 
 vector<CPosition> CPlayer::GetHits()
 {
-	return m_hits;
+	return m_hitsAt;
 }
 
 bool CPlayer::CheckHit(CPosition _pos)
@@ -149,7 +149,7 @@ void CPlayer::MoveCursorDown(int _y)
 	m_cursor.y = clamp(m_cursor.y + _y, 0, 9);
 }
 
-bool CPlayer::checkSame(CPlayer& _player)
+bool CPlayer::CheckSame(CPlayer& _player)
 {
 	return this == &_player;
 }

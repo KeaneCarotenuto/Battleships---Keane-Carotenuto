@@ -10,9 +10,9 @@ class CPlayer
 protected:
 	wstring m_name;
 	vector<CShip> m_ships;
-	vector<CPosition> m_shots;
-	vector<CPosition> m_misses;
-	vector<CPosition> m_hits;
+	vector<CPosition> m_shotsAt;
+	vector<CPosition> m_missesAt;
+	vector<CPosition> m_hitsAt;
 	CPosition m_boardPos;
 	CPosition m_cursor;
 
@@ -53,7 +53,7 @@ public:
 	void MoveCursorRight(int _x);
 	void MoveCursorDown(int _y);
 
-	bool checkSame(CPlayer& _player);
+	bool CheckSame(CPlayer& _player);
 	
 };
 
