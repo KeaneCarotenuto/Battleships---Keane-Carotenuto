@@ -5,9 +5,9 @@
 
 using namespace std;
 
-class CGame
+class CGame																													// TF: Class
 {
-private:
+private:																													// TF: Access Specifier
 	bool m_isRunning = true;
 	bool m_debug = true;
 	int m_pTurn = 0;
@@ -15,7 +15,7 @@ private:
 	
 	
 
-public:
+public:																														// TF: Access Specifier
 	~CGame();
 
 	int state = 0;
@@ -24,6 +24,7 @@ public:
 	void StartGame();
 	void StopGame();
 	void ToggleDebug();
+	void SetDebug(bool _debug);
 	bool GetDebug();
 	bool IsRunning();
 

@@ -22,6 +22,11 @@ void CGame::ToggleDebug()
 	m_debug = !m_debug;
 }
 
+void CGame::SetDebug(bool _debug)
+{
+	m_debug = _debug;
+}
+
 bool CGame::GetDebug()
 {
 	return m_debug;

@@ -24,7 +24,8 @@ Mail : Keane.Car8958@mediadesign.school.nz
 #include <algorithm>
 #include <conio.h>
 
-#include"CGame.h"
+#include"CGame.h"																											// TF: Class
+																															// TF: Access Specifier (Inside header File)
 #include"CPosition.h"
 #include"CSegment.h"
 #include"CShip.h"
@@ -40,7 +41,8 @@ void SetFont();
 void DrawBoard(CPlayer& player);
 void DrawCursor(CPlayer& player, int colour);
 
-wstring Login();
+wstring Login();																											// TF: Variable Type
+void DisplayControls(CPosition _pos, int _type);
 void SetUpMenu(CGame* game);
 void MenuControls(CGame* game);
 void ShipPlacement(CGame* game, wstring _userName);
@@ -48,13 +50,13 @@ void PlayGame(CGame* game, bool &endAfter);
 void EndGame(CGame* game, int _endVal);
 
 void PlayerTurn(CGame *game, int _beingAttacked);
-void AutomaticPlace(CGame& game, vector<CShip>& toPlace, int _player);
-void ManualPlace(CGame& game, vector<CShip>& toPlace);
-bool CheckTempShip(CGame& game, CPosition& _startPos, CShip& _ship, int& _direction, int _player);
+void AutomaticPlace(CGame& game, const CShip(&toPlace)[5], int _player);													// TF: Constant
+void ManualPlace(CGame& game, const CShip(&toPlace)[5]);																	// TF: Constant
+bool CheckTempShip(CGame& game, CPosition& _startPos, CShip& _ship, int& _direction, int _player);							// TF: Variable Type
 
-void Print(CPosition pos, wstring str, int effect);
-void SlowPrint(CPosition _pos, wstring _message, int effect = 15, int _wait = 20);
-void GotoXY(CPosition pos, int multi = 1);
+void Print(CPosition pos, wstring str, int effect = 15);																	// TF: Default Parameter
+void SlowPrint(CPosition _pos, wstring _message, int effect = 15, int _wait = 20);											// TF: Default Parameter
+void GotoXY(CPosition pos);
 
 int main() {
 	SetupGame();
@@ -69,14 +71,17 @@ int main() {
 
 	SetFont();
 
-	CGame *game = new CGame();
+	CGame *game = new CGame();																								// TF: Pointer Initialised
+																															// TF: Dynamic Memory
+																															// TF: Class Instance
+
 	
 	SetUpMenu(game);
 	
-	bool endAfter = false;
+	bool endAfter = false;																									 // TF: Variable Type
 
 	while (game->IsRunning()) {
-		switch (game->state)
+		switch (game->state)																								// TF: Pointer Dereferenced
 		{
 		case 0:
 			MenuControls(game);
@@ -112,7 +117,8 @@ int main() {
 		
 	}
 
-	delete game;
+	delete game;																											// TF: Dynamic Memory
+																															// TF: Destructor
 	game = nullptr;
 
 	Print({0,0},L"Press <ENTER> to Exit",12);
@@ -157,12 +163,12 @@ void SetupGame()
 	SetConsoleCursorInfo(hstdout, &info);
 
 	//Seed for Random
-	srand(static_cast <unsigned> (time(0)));
+	srand(static_cast <unsigned> (time(0)));																				// TF: Pseudo Random Number
 }
 
 wstring Login()
 {
-	wstring tempName;
+	wstring tempName;																										// TF: Variable Type
 	SlowPrint({ 0,0 }, L"[COMPLETE] BATTLESHIP SYSTEM ONLINE", 10, 30);
 
 	SlowPrint({ 2,2 }, L"ENTER DEFENCE FORCE LOGIN", 12, 30);
@@ -173,7 +179,7 @@ wstring Login()
 	SlowPrint({ 4,6 }, L"ENTER Password: ");
 
 	while (true) {
-		if (_kbhit()) {
+		if (_kbhit()) {																										// TF: Conditional Statement
 			wcout << L"*";
 			_getch();
 
@@ -191,26 +197,72 @@ wstring Login()
 	return tempName;
 }
 
+void DisplayControls(CPosition _pos, int _type)
+{
+	int x = _pos.x;																											// TF: Variable Type
+	int y = _pos.y;																											// TF: Variable Type
+
+	Print({x + 0, y + 0}, L"CONTROLS:", 15);																				// TF: Arithmetic Operator
+	
+	if (_type == 1) {																										// TF: Relational Operator
+		Print({ x + 1, y + 2 }, L"Text Menus:", 7);
+		Print({ x + 2, y + 3 }, L"Use <UP> and <DOWN> arrow keys to change Selection", 8);
+		Print({ x + 2, y + 4 }, L"Press <ENTER> to Confirm Selection", 8);
+
+		Print({ x + 1, y + 6 }, L"On Game Board:", 7);
+		Print({ x + 2, y + 7 }, L"Use <ARROW KEYS> to Move Aim Reticle", 8);
+		Print({ x + 2, y + 8 }, L"Press <SPACE> to fire at Targeted Position", 8);
+	}
+	
+	if (_type == 2) {
+		Print({ x + 1, y + 2 }, L"Text Menus:", 7);
+		Print({ x + 2, y + 3 }, L"Use <UP> and <DOWN> arrow keys to change Selection", 8);
+		Print({ x + 2, y + 4 }, L"Press <ENTER> to Confirm Selection", 8);
+	}
+
+	if (_type == 3 || _type == 5) {																							// TF: Logical Operator
+		Print({ x + 1, y + 2 }, L"On Game Board:", 7);
+		Print({ x + 2, y + 3 }, L"Use <ARROW KEYS> to Move Aim Reticle", 8);
+		Print({ x + 2, y + 4 }, L"Press <SPACE> to fire at Targeted Position", 8);
+	}
+
+	if (_type == 4) {
+		Print({ x + 1, y + 2 }, L"Ship Placement:", 7);
+		Print({ x + 2, y + 3 }, L"Use <ARROW KEYS> to Move Target Location", 8);
+		Print({ x + 2, y + 4 }, L"Use <R> to Rotate Target Location", 8);
+		Print({ x + 2, y + 5 }, L"Press <SPACE> to Place Ship at Target Location", 8);
+	}
+
+	if (_type == 5) {
+		Print({ x + 2, y + 5 }, L"Press <CTRL>+<D> to Enable Counter Intelligence*", 8);
+		Print({ x + 2, y + 6 }, L"                          *(Debug Mode)", 8);
+	}
+
+}
+
 void SetUpMenu(CGame *game)
 {
 	game->AddPlayer({ L"MENU" });
-	game->GetPlayer(0).AddShip({ {2,3},1,0,L"P",240 });
-	game->GetPlayer(0).AddShip({ {3,3},1,0,L"L",240 });
-	game->GetPlayer(0).AddShip({ {4,3},1,0,L"A",240 });
-	game->GetPlayer(0).AddShip({ {5,3},1,0,L"Y",240 });
+	game->GetPlayer(0).AddShip({ {2,2},1,0,L"B",240 });																		// TF: Constructor
+	game->GetPlayer(0).AddShip({ {3,2},1,0,L"A",240 });
+	game->GetPlayer(0).AddShip({ {4,2},1,0,L"T",240 });
+	game->GetPlayer(0).AddShip({ {5,2},1,0,L"T",240 });
+	game->GetPlayer(0).AddShip({ {6,2},1,0,L"L",240 });
+	game->GetPlayer(0).AddShip({ {7,2},1,0,L"E",240 });
 
-	game->GetPlayer(0).AddShip({ {2,9},1,0,L"Q",240 });
-	game->GetPlayer(0).AddShip({ {3,9},1,0,L"U",240 });
-	game->GetPlayer(0).AddShip({ {4,9},1,0,L"I",240 });
-	game->GetPlayer(0).AddShip({ {5,9},1,0,L"T",240 });
+	game->GetPlayer(0).AddShip({ {3,8},1,0,L"Q",240 });
+	game->GetPlayer(0).AddShip({ {4,8},1,0,L"U",240 });
+	game->GetPlayer(0).AddShip({ {5,8},1,0,L"I",240 });
+	game->GetPlayer(0).AddShip({ {6,8},1,0,L"T",240 });
 
 
 	game->GetPlayer(0).CreateBoard();
 	game->GetPlayer(0).SetBoardPos({ 5,5 });
-
 	game->UpdateBoards();
 
-	DrawBoard(game->GetPlayer(0));
+	DrawBoard(game->GetPlayer(0));																							// TF: Reference
+
+	DisplayControls({40, 5}, 3);
 }
 
 void MenuControls(CGame* game)
@@ -223,15 +275,22 @@ void MenuControls(CGame* game)
 		bool theHit = game->GetPlayer(0).CalcShot(game->GetPlayer(0).GetCursor());
 		game->UpdateBoards();
 		DrawBoard(game->GetPlayer(0));
-		Print({ game->GetPlayer(0).GetCursor().x * 3 + game->GetPlayer(0).GetBoardPos().x, game->GetPlayer(0).GetCursor().y * 3 - 1 + game->GetPlayer(0).GetBoardPos().y }, theHit ? L"HIT " : L"MISS", theHit ? 47 : 79);
+		Print({ game->GetPlayer(0).GetCursor().x * 3 + game->GetPlayer(0).GetBoardPos().x,									// TF: Arithmetic Operator
+		game->GetPlayer(0).GetCursor().y * 3 - 1 + game->GetPlayer(0).GetBoardPos().y },									// TF: Arithmetic Operator
+			theHit ? L"HIT " : L"MISS",
+			theHit ? 47 : 79);
 
-		if (theHit && game->GetPlayer(0).GetCursor().y == 3) {
+		if (theHit && game->GetPlayer(0).GetCursor().y == 2) {																// TF: Logical Operator
 			game->GetPlayer(0).RemoveShip(0);
 
 			game->RemovePlayer(0);
 
 			Sleep(500);
 			game->state = 1;
+		}
+		else if (theHit && game->GetPlayer(0).GetCursor().y == 8){															// TF: Logical Operator
+			game->StopGame();
+			return;
 		}
 	}
 	else {
@@ -243,20 +302,20 @@ void MenuControls(CGame* game)
 
 void ShipPlacement(CGame* game, wstring _userName)
 {
-	vector<CShip> toPlace{
+	const CShip toPlace[5]{																							// TF: Constant
 				{ {0,0},5,0,L"A",240 },
 				{ {0,0},4,0,L"B",224 },
 				{ {0,0},3,0,L"D",192 },
 				{ {0,0},3,0,L"S",144 },
 				{ {0,0},2,0,L"P",176 }
-	};
+	};																												// TF: Array
 
 	game->AddPlayer(_userName);
 
 	game->GetPlayer(0).CreateBoard();
 	game->GetPlayer(0).SetBoardPos({ 5,5 });
 
-	game->AddPlayer({ L"CPU" });
+	game->AddPlayer({ L"CPU" });																					// TF: Constructor
 
 	game->GetPlayer(1).CreateBoard();
 	game->GetPlayer(1).SetBoardPos({ 40,5 });
@@ -271,6 +330,8 @@ void ShipPlacement(CGame* game, wstring _userName)
 
 	SlowPrint({ 3,4 }, L"Manual", colours[0]);
 	SlowPrint({ 3,5 }, L"Automatic", colours[1]);
+
+	DisplayControls({ 40, 5 }, 2);
 
 	while (true)
 	{
@@ -300,13 +361,18 @@ void ShipPlacement(CGame* game, wstring _userName)
 	}
 
 	if (colours[0] == 10) {
+		DisplayControls({ 40, 15 }, 4);
 		ManualPlace(*game, toPlace);
 	}
 	else {
 		AutomaticPlace(*game, toPlace, 0);
 	}
 
-	game->ToggleDebug();
+	system("CLS");
+
+	DisplayControls({ 5, 40 }, 5);
+
+	game->SetDebug(false);
 
 	game->GetPlayer(1).ResetBoard(); game->UpdateBoards();
 
@@ -317,7 +383,7 @@ void ShipPlacement(CGame* game, wstring _userName)
 
 void PlayGame(CGame* game, bool &endAfter)
 {
-	if (game->GetPlayer(1).GetHits().size() >= 17) {
+	if (game->GetPlayer(1).GetHits().size() >= 17) {																		// TF: Relational Operator
 		if (endAfter) {
 			game->state = 5;
 			return;
@@ -326,7 +392,7 @@ void PlayGame(CGame* game, bool &endAfter)
 		return;
 	}
 	if (game->GetPlayer(0).GetHits().size() >= 17) {
-		if (endAfter && game->GetPlayerTurn() == 0) {
+		if (endAfter && game->GetPlayerTurn() == 0) {																		// TF: Relational Operator
 			game->state = 3;
 		}
 		else {
@@ -346,11 +412,11 @@ void EndGame(CGame* game, int _endVal)
 
 	if (_endVal == 1) {
 		//Loss
-		SlowPrint({ 10,4 }, L"██████  ███████ ███████ ███████  █████  ████████ ", 10, 1);
-		SlowPrint({ 10,5 }, L"██   ██ ██      ██      ██      ██   ██    ██    ", 10, 1);
-		SlowPrint({ 10,6 }, L"██   ██ █████   █████   █████   ███████    ██    ", 10, 1);
-		SlowPrint({ 10,7 }, L"██   ██ ██      ██      ██      ██   ██    ██    ", 10, 1);
-		SlowPrint({ 10,8 }, L"██████  ███████ ██      ███████ ██   ██    ██    ", 10, 1);
+		SlowPrint({ 10,4 }, L"██████  ███████ ███████ ███████  █████  ████████ ", 12, 1);
+		SlowPrint({ 10,5 }, L"██   ██ ██      ██      ██      ██   ██    ██    ", 12, 1);
+		SlowPrint({ 10,6 }, L"██   ██ █████   █████   █████   ███████    ██    ", 12, 1);
+		SlowPrint({ 10,7 }, L"██   ██ ██      ██      ██      ██   ██    ██    ", 12, 1);
+		SlowPrint({ 10,8 }, L"██████  ███████ ██      ███████ ██   ██    ██    ", 12, 1);
 
 	}
 	else if (_endVal == 2) {
@@ -366,11 +432,11 @@ void EndGame(CGame* game, int _endVal)
 	else {
 		//Tie
 
-		SlowPrint({ 10,4 }, L"██████  ██████   █████  ██     ██ ", 10, 1);
-		SlowPrint({ 10,5 }, L"██   ██ ██   ██ ██   ██ ██     ██ ", 10, 1);
-		SlowPrint({ 10,6 }, L"██   ██ ██████  ███████ ██  █  ██ ", 10, 1);
-		SlowPrint({ 10,7 }, L"██   ██ ██   ██ ██   ██ ██ ███ ██ ", 10, 1);
-		SlowPrint({ 10,8 }, L"██████  ██   ██ ██   ██  ███ ███  ", 10, 1);
+		SlowPrint({ 10,4 }, L"██████  ██████   █████  ██     ██ ", 15, 1);
+		SlowPrint({ 10,5 }, L"██   ██ ██   ██ ██   ██ ██     ██ ", 15, 1);
+		SlowPrint({ 10,6 }, L"██   ██ ██████  ███████ ██  █  ██ ", 15, 1);
+		SlowPrint({ 10,7 }, L"██   ██ ██   ██ ██   ██ ██ ███ ██ ", 15, 1);
+		SlowPrint({ 10,8 }, L"██████  ██   ██ ██   ██  ███ ███  ", 15, 1);
 
 	}
 
@@ -391,6 +457,7 @@ void EndGame(CGame* game, int _endVal)
 			system("CLS");
 			game->RemovePlayer(1);
 			game->RemovePlayer(0);
+			game->SetDebug(true);
 			SetUpMenu(game);
 			game->state = 0;
 			return;
@@ -401,6 +468,8 @@ void EndGame(CGame* game, int _endVal)
 void PlayerTurn(CGame *game, int _beingAttacked)
 {
 	if (_beingAttacked == 1) {
+		Print({ 4,36 },  L"╙██████████████████████████████╜",0);
+		Print({ 39,36 }, L"╙██████████████████████████████╜", 10);
 		if (GetKeyState(VK_LEFT) & 0x8000) { game->GetPlayer(_beingAttacked).MoveCursorRight(-1); DrawBoard(game->GetPlayer(_beingAttacked)); };
 		if (GetKeyState(VK_RIGHT) & 0x8000) { game->GetPlayer(_beingAttacked).MoveCursorRight(1); DrawBoard(game->GetPlayer(_beingAttacked)); };
 		if (GetKeyState(VK_UP) & 0x8000) { game->GetPlayer(_beingAttacked).MoveCursorDown(-1); DrawBoard(game->GetPlayer(_beingAttacked)); };
@@ -415,14 +484,16 @@ void PlayerTurn(CGame *game, int _beingAttacked)
 		};
 	}
 	else {
-
+		Print({ 4,36 },  L"╙██████████████████████████████╜", 12);
+		Print({ 39,36 }, L"╙██████████████████████████████╜", 0);
 		CPosition betterShot = { -1,-1 };
 		for (CPosition _hit : game->GetPlayer(_beingAttacked).GetHits()) {
 			
 			vector<CPosition> spots { {0, -1}, { 0, 1 }, { -1, 0 }, { 1, 0 } };
 			
-			while (spots.size() > 0) {
-				int randInt = (rand() % spots.size());
+			while (spots.size() > 0) {																						// TF: Conditional Statement
+				int randInt = (rand() % spots.size());																		// TF: Arithmetic Operator
+																															// TF: Pseudo Random Number
 				int x = spots[randInt].x;
 				int y = spots[randInt].y;
 
@@ -444,15 +515,15 @@ void PlayerTurn(CGame *game, int _beingAttacked)
 	stopCheck:
 
 
-		if (betterShot.x != -1 && betterShot.y != -1) {
+		if (betterShot.x != -1 && betterShot.y != -1) {																		// TF: Relational Operator
 			game->m_AImoves = 10;
 			game->GetPlayer(_beingAttacked).SetCursor(betterShot);
 		}
 		else {
-			game->GetPlayer(_beingAttacked).SetCursor({ rand() % 10,rand() % 10 });
+			game->GetPlayer(_beingAttacked).SetCursor({ rand() % 10,rand() % 10 });											// TF: Arithmetic Operator
 			while ((game->GetPlayer(_beingAttacked).GetCursor().x % 2 == 0 && game->GetPlayer(_beingAttacked).GetCursor().y % 2 != 0) || (game->GetPlayer(_beingAttacked).GetCursor().x % 2 != 0 && game->GetPlayer(_beingAttacked).GetCursor().y % 2 == 0))
 			{
-				game->GetPlayer(_beingAttacked).SetCursor({ rand() % 10, rand() % 10 });
+				game->GetPlayer(_beingAttacked).SetCursor({ rand() % 10, rand() % 10 });									// TF: Pseudo Random Number
 			}
 
 
@@ -461,7 +532,7 @@ void PlayerTurn(CGame *game, int _beingAttacked)
 		game->m_AImoves++;
 
 		
-		for (CPosition _shot : game->GetPlayer(_beingAttacked).GetShots()) {
+		for (CPosition _shot : game->GetPlayer(_beingAttacked).GetShots()) {												// TF: Iteration Structure
 			if (_shot.x == game->GetPlayer(_beingAttacked).GetCursor().x && _shot.y == game->GetPlayer(_beingAttacked).GetCursor().y) game->m_AImoves--;
 		}
 
@@ -483,7 +554,7 @@ void PlayerTurn(CGame *game, int _beingAttacked)
 
 void SlowPrint(CPosition _pos, wstring _message, int effect, int _wait) {
 	GotoXY(_pos);
-	for (wchar_t _char : _message) {
+	for (wchar_t _char : _message) {																						// TF: Iteration Structure
 		Sleep(_wait);
 		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), effect);
 		wcout << _char;
@@ -493,7 +564,7 @@ void SlowPrint(CPosition _pos, wstring _message, int effect, int _wait) {
 
 bool CheckTempShip(CGame& game, CPosition& _startPos, CShip& _ship, int& _direction, int _player) {
 	if ((_startPos.x + _ship.GetSegments().size() - 1 > 9 && _direction == 0) || (_startPos.y + _ship.GetSegments().size() - 1 > 9 && _direction == 1)) return false;
-	for (int i = 0; i < _ship.GetSegments().size(); i++) {
+	for (int i = 0; i < _ship.GetSegments().size(); i++) {																	// TF: Iteration Structure
 
 		CPosition _tempPos;
 		if (_direction == 0) {
@@ -508,9 +579,9 @@ bool CheckTempShip(CGame& game, CPosition& _startPos, CShip& _ship, int& _direct
 	return true;
 }
 
-void ManualPlace(CGame& game, vector<CShip>& toPlace) {
+void ManualPlace(CGame& game, const CShip (&toPlace)[5]) {																	// TF: Array
 	for (CShip _ship : toPlace) {
-		CPosition _startPos = CPosition(game.GetPlayer(0).GetCursor());
+		CPosition _startPos = CPosition(game.GetPlayer(0).GetCursor());														// TF: Copy Constructor
 		int _direction = 0;
 		int _placed = false;
 		int _colour = 31;
@@ -525,7 +596,7 @@ void ManualPlace(CGame& game, vector<CShip>& toPlace) {
 		SlowPrint({ 40,8 }, L"Colour: ", 15, 5);
 		SlowPrint({ 48,8 }, L"╬", _ship.GetColour(), 5);
 
-		while (!_placed)
+		while (!_placed)																									// TF: Logical Operator
 		{
 			if (GetKeyState(VK_LEFT) & 0x8000) { game.GetPlayer(0).MoveCursorRight(-1); DrawBoard(game.GetPlayer(0)); _update = true; };
 			if (GetKeyState(VK_RIGHT) & 0x8000) { game.GetPlayer(0).MoveCursorRight(1); DrawBoard(game.GetPlayer(0)); _update = true; };
@@ -596,7 +667,7 @@ void ManualPlace(CGame& game, vector<CShip>& toPlace) {
 	}
 }
 
-void AutomaticPlace(CGame& game, vector<CShip>& toPlace, int _player) {
+void AutomaticPlace(CGame& game, const CShip(&toPlace)[5], int _player) {													// TF: Array
 	for (CShip _ship : toPlace) {
 		CPosition _startPos{ 0,0 };
 		int _direction = 0;
@@ -607,8 +678,8 @@ void AutomaticPlace(CGame& game, vector<CShip>& toPlace, int _player) {
 
 		while (!_placed)
 		{
-			CPosition _startPos{ rand() % 10,rand() % 10 };
-			int _direction = rand() % 2;
+			CPosition _startPos{ rand() % 10,rand() % 10 };																	// TF: Arithmetic Operator
+			int _direction = rand() % 2;																					// TF: Pseudo Random Number
 
 			if (CheckTempShip(game, _startPos, _ship, _direction, _player)) {
 				_canPlace = true;
@@ -628,9 +699,9 @@ void AutomaticPlace(CGame& game, vector<CShip>& toPlace, int _player) {
 	}
 }
 
-void DrawBoard(CPlayer& player) {
+void DrawBoard(CPlayer& player) {																							// TF: Reference
 	int iy = 0;
-	Print({ player.GetBoardPos().x, player.GetBoardPos().y - 2 }, player.GetName() + L"'s Ships", 10);
+	Print({ player.GetBoardPos().x, player.GetBoardPos().y - 2 }, player.GetName() + L"'s Ships", 10);						// TF: Reference
 	for (int y = 0; y < 32; y++) {
 		for (int x = 0; x < 32; x++) {
 			if (x > 0 && x < 31 && y >0 && y < 31) continue;
@@ -683,16 +754,16 @@ void DrawCursor(CPlayer& player, int colour)
 #pragma region "Printing Functions"
 //Used to print out text at the specified coordinate, with the specified effect.
 void Print(CPosition pos, wstring str, int effect) {
-	GotoXY(pos, 1);
+	GotoXY(pos);
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), effect);
 	wcout << str;
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15);
 };
 
 //Used to move the Console Cursor to a point on the screen for more accurate text management.
-void GotoXY(CPosition pos, int multi) {
+void GotoXY(CPosition pos) {
 	COORD point;
-	point.X = (pos.x) * multi;
+	point.X = pos.x;
 	point.Y = pos.y;
 	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), point);
 };
