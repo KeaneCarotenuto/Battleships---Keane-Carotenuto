@@ -568,7 +568,6 @@ void PlayerTurn(CGame *game, int _beingAttacked)
 				//If there is a shot to be taken that is adjacent to the hit, it will take it
 				if (shouldShoot) {
 					betterShot = { _hit.x + x, _hit.y + y };
-					Print({ 40,40 }, to_wstring(_hit.x + x) + L", " + to_wstring(_hit.y + y), 15);
 					goto stopCheck;
 				}
 
