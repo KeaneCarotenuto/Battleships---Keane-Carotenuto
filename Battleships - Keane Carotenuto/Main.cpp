@@ -235,18 +235,30 @@ void SetUpMenu(CGame* game)
 	//Creates temporary Menu Player
 	game->AddPlayer({ L"MENU" });
 	
-	//Adds Ships as Buttons
-	game->GetPlayer(0).AddShip({ {2,2},1,0,L"B",240 });																		// TF: Constructor
-	game->GetPlayer(0).AddShip({ {3,2},1,0,L"A",240 });
-	game->GetPlayer(0).AddShip({ {4,2},1,0,L"T",240 });
-	game->GetPlayer(0).AddShip({ {5,2},1,0,L"T",240 });
-	game->GetPlayer(0).AddShip({ {6,2},1,0,L"L",240 });
-	game->GetPlayer(0).AddShip({ {7,2},1,0,L"E",240 });
+	game->GetPlayer(0).AddShip({ {1,0},1,0,L"W",112 });	
+	game->GetPlayer(0).AddShip({ {2,0},1,0,L"E",112 });
+	game->GetPlayer(0).AddShip({ {3,0},1,0,L"L",112 });
+	game->GetPlayer(0).AddShip({ {4,0},1,0,L"C",112 });
+	game->GetPlayer(0).AddShip({ {5,0},1,0,L"O",112 });
+	game->GetPlayer(0).AddShip({ {6,0},1,0,L"M",112 });
+	game->GetPlayer(0).AddShip({ {7,0},1,0,L"E",112 });
+	game->GetPlayer(0).AddShip({ {8,0},1,0,L"!",112 });
 
-	game->GetPlayer(0).AddShip({ {3,8},1,0,L"Q",240 });
-	game->GetPlayer(0).AddShip({ {4,8},1,0,L"U",240 });
-	game->GetPlayer(0).AddShip({ {5,8},1,0,L"I",240 });
-	game->GetPlayer(0).AddShip({ {6,8},1,0,L"T",240 });
+	//Adds Ships as Buttons
+	game->GetPlayer(0).AddShip({ {2,3},1,0,L"F",63 });																		// TF: Constructor
+	game->GetPlayer(0).AddShip({ {3,3},1,0,L"I",63 });
+	game->GetPlayer(0).AddShip({ {4,3},1,0,L"G",63 });
+	game->GetPlayer(0).AddShip({ {5,3},1,0,L"H",63 });
+	game->GetPlayer(0).AddShip({ {6,3},1,0,L"T",63 });
+	game->GetPlayer(0).AddShip({ {7,3},1,0,L"!",63 });
+
+	game->GetPlayer(0).AddShip({ {4,5},1,0,L"O",111 });
+	game->GetPlayer(0).AddShip({ {5,5},1,0,L"R",111 });
+
+	game->GetPlayer(0).AddShip({ {3,7},1,0,L"Q",79 });
+	game->GetPlayer(0).AddShip({ {4,7},1,0,L"U",79 });
+	game->GetPlayer(0).AddShip({ {5,7},1,0,L"I",79 });
+	game->GetPlayer(0).AddShip({ {6,7},1,0,L"T",79 });
 
 	//Creates Board With Ships
 	game->GetPlayer(0).CreateBoard();
@@ -277,7 +289,7 @@ void MenuControls(CGame* game)
 			theHit ? L"HIT " : L"MISS",
 			theHit ? 47 : 79);
 
-		if (theHit && game->GetPlayer(0).GetCursor().y == 2) {																// TF: Logical Operator
+		if (theHit && game->GetPlayer(0).GetCursor().y == 3) {																// TF: Logical Operator
 			game->GetPlayer(0).RemoveShip(0);
 
 			game->RemovePlayer(0);
@@ -285,7 +297,7 @@ void MenuControls(CGame* game)
 			Sleep(500);
 			game->state = 1;
 		}
-		else if (theHit && game->GetPlayer(0).GetCursor().y == 8) {															// TF: Logical Operator
+		else if (theHit && game->GetPlayer(0).GetCursor().y == 7) {															// TF: Logical Operator
 			game->StopGame();
 			return;
 		}
